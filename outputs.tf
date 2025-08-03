@@ -1,7 +1,8 @@
 # Outputs
-output "api_gateway_url" {
-  value = aws_apigatewayv2_api.demo_http.api_endpoint
-}
+#TODO
+# output "api_gateway_url" {
+#   value = aws_apigatewayv2_api.demo_http.api_endpoint
+# }
 
 output "dynamodb_table_name" {
   value = aws_dynamodb_table.secrets.name
