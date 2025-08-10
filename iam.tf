@@ -58,7 +58,7 @@ resource "aws_iam_policy" "lambda_post_policy" {
         ]
         Resource = [
           aws_sqs_queue.secrets_journal.arn,
-          aws_sqs_queue.qr_queue.arn
+          aws_sqs_queue.qr_code_queue.arn
         ]
       },
       {

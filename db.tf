@@ -34,16 +34,11 @@ resource "aws_dynamodb_table" "secrets" {
     Name = "secrets"
   }
 }
-#TODO:
-# Option1: TTL within DynamoDB
-# Option2: Success-SQS with TTL,
-#         when TTL is triggered items are stored to Delete-SQS.
-#         Then Lambda-Delete is subscribed to Delete-SQS and
-#         replaces Secret from DynamoDB.
 
 # S3 bucket for QRs
-resource "aws_s3_bucket" "qr_codes" {
-  bucket = "${local.name_prefix}-qr-codes"
+resource "aws_s3_bucket" "qrcodes-bucket" {
+  bucket = "${local.name_prefix}-qrcodes-bucket"
+  force_destroy = true
 }
 
 # Future improvements:

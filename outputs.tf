@@ -9,7 +9,7 @@ output "dynamodb_table_name" {
 }
 
 output "qr_bucket_name" {
-  value = aws_s3_bucket.qr_codes.bucket
+  value = aws_s3_bucket.qrcodes-bucket.bucket
 }
 
 output "secrets_journal_queue_url" {
@@ -17,5 +17,5 @@ output "secrets_journal_queue_url" {
 }
 
 output "qr_code_queue_url" {
-  value = aws_sqs_queue.qr_queue.url
+  value = aws_sqs_queue.qr_code_queue.url
 }

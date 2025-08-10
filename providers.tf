@@ -20,3 +20,12 @@ terraform {
 provider "aws" {
   region = var.region
 }
+
+data "terraform_remote_state" "aws_upc_pfg_tfstate" {
+  backend = "s3"
+  config = {
+    bucket = "aws-upc-pfg-tfstate-bucket"  # Producer project's state bucket
+    key    = "aws-upc-pfg-code/terraform.tfstate"
+    region = "us-east-1"
+  }
+}
