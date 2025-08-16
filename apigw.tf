@@ -23,7 +23,7 @@ resource "aws_apigatewayv2_integration" "acknowledge_integration" {
   api_id                 = aws_apigatewayv2_api.secrets_api.id
   integration_type       = "AWS_PROXY"
   integration_uri        = aws_lambda_function.acknowledge_function.invoke_arn
-  integration_method     = "GET"
+  integration_method     = "POST"
   payload_format_version = "2.0"
   timeout_milliseconds   = 30000
 }
