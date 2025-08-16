@@ -16,6 +16,11 @@ variable "region" {
   default     = "us-east-1"
 }
 
+variable "account_name" {
+  type        = string
+  description = "Name of the AWS account"
+}
+
 locals {
   name_prefix = "${var.app-name}-${var.environment}"
 }
