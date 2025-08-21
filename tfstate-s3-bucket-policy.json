@@ -6,8 +6,8 @@
       "Principal": "*",
       "Action": "s3:*",
       "Resource": [
-        "arn:aws:s3:::aws-upc-pfg-infra-tfstate-bucket",
-        "arn:aws:s3:::aws-upc-pfg-infra-tfstate-bucket/*"
+        "arn:aws:s3:::aws-upc-pfg-infra-tfstate-bucket-{account_name}",
+        "arn:aws:s3:::aws-upc-pfg-infra-tfstate-bucket-{account_name}/*"
       ],
       "Condition": {
         "Bool": {

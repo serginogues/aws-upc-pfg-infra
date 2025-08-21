@@ -1,0 +1,41 @@
+# Local Terraform directories
+**/.terraform/*
+
+# Terraform state files
+*.tfstate
+*.tfstate.*
+
+# Crash log files
+crash.log
+crash.*.log
+
+# Terraform variable files (often contain sensitive data)
+*.tfvars
+*.tfvars.json
+*.auto.tfvars
+
+# Terraform override files
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Include override files you do wish to add to version control
+# !example_override.tf
+
+# Ignore Terraform plan files (customize pattern as needed)
+*tfplan*
+
+# Ignore CLI configuration files
+.terraformrc
+terraform.rc
+
+# Terraform lock file
+**/.terraform.lock.hcl
+
+# MacOS system file
+**/.DS_Store
+
+# IDE directories (optional, add according to your IDE)
+.vscode/
+.idea/
