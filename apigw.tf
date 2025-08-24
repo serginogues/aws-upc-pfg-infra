@@ -1,12 +1,6 @@
 # API Gateway REST API
 resource "aws_api_gateway_rest_api" "secrets_api" {
   name = "${local.name_prefix}-api"
-  protocol_type              = "HTTP"
-  route_selection_expression = "$request.method $request.path"
-  api_key_selection_expression = "$request.header.x-api-key"
-  disable_execute_api_endpoint = false
-  # ip_address_type defaults to ipv4, puedes especificarlo si quieres:
-  ip_address_type            = "ipv4"
 }
 
 # Create resources for the paths

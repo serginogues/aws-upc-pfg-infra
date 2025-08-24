@@ -157,4 +157,3 @@ resource "aws_iam_role_policy_attachment" "lambda_s3_policy" {
 
 
 #TODO: Similar policies must be created for other Lambdas
-
