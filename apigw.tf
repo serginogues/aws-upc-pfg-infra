@@ -4,23 +4,23 @@ resource "aws_api_gateway_rest_api" "secrets_api" {
 }
 
 # Create resources for the paths
-resource "aws_api_gateway_resource" "users" {
-  rest_api_id = aws_api_gateway_rest_api.secrets_api.id
-  parent_id   = aws_api_gateway_rest_api.secrets_api.root_resource_id
-  path_part   = "users"
-}
+# resource "aws_api_gateway_resource" "users" {
+#   rest_api_id = aws_api_gateway_rest_api.secrets_api.id
+#   parent_id   = aws_api_gateway_rest_api.secrets_api.root_resource_id
+#   path_part   = "users"
+# }
+#
+# resource "aws_api_gateway_resource" "user_id" {
+#   rest_api_id = aws_api_gateway_rest_api.secrets_api.id
+#   parent_id   = aws_api_gateway_resource.users.id
+#   path_part   = "{userId}"
+# }
 
-resource "aws_api_gateway_resource" "user_id" {
-  rest_api_id = aws_api_gateway_rest_api.secrets_api.id
-  parent_id   = aws_api_gateway_resource.users.id
-  path_part   = "{userId}"
-}
-
-resource "aws_api_gateway_resource" "user_secrets" {
-  rest_api_id = aws_api_gateway_rest_api.secrets_api.id
-  parent_id   = aws_api_gateway_resource.user_id.id
-  path_part   = "secrets"
-}
+# resource "aws_api_gateway_resource" "user_secrets" {
+#   rest_api_id = aws_api_gateway_rest_api.secrets_api.id
+#   parent_id   = aws_api_gateway_resource.user_id.id
+#   path_part   = "secrets"
+# }
 
 resource "aws_api_gateway_resource" "secrets" {
   rest_api_id = aws_api_gateway_rest_api.secrets_api.id
@@ -47,18 +47,17 @@ resource "aws_api_gateway_resource" "ack_secret_id" {
 }
 
 # Methods and integrations
-
-# GET /users/{userId}/secrets
+# GET /secrets
 resource "aws_api_gateway_method" "get_secrets" {
   rest_api_id   = aws_api_gateway_rest_api.secrets_api.id
-  resource_id   = aws_api_gateway_resource.user_secrets.id
+  resource_id   = aws_api_gateway_resource.secrets.id
   http_method   = "GET"
   authorization = "NONE"
 }
 
 resource "aws_api_gateway_integration" "get_secrets_integration" {
   rest_api_id             = aws_api_gateway_rest_api.secrets_api.id
-  resource_id             = aws_api_gateway_resource.user_secrets.id
+  resource_id             = aws_api_gateway_resource.secrets.id
   http_method             = aws_api_gateway_method.get_secrets.http_method
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
