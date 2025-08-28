@@ -1,10 +1,121 @@
+# IAM Roles for Cognito
+resource "aws_iam_role" "auth_role" {
+  name = "cognito_authenticated"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [{
+      Effect    = "Allow",
+      Principal = {
+        Federated = "cognito-identity.amazonaws.com"
+      },
+      Action = "sts:AssumeRoleWithWebIdentity",
+      Condition = {
+        StringEquals = {
+          "cognito-identity.amazonaws.com:aud" = aws_cognito_identity_pool.identities.id
+        },
+        "ForAnyValue:StringLike" = {
+          "cognito-identity.amazonaws.com:amr" = "authenticated"
+        }
+      }
+    }]
+  })
+}
+
+resource "aws_iam_role" "unauth_role" {
+  name = "cognito_unauthenticated"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [{
+      Effect    = "Allow",
+      Principal = {
+        Federated = "cognito-identity.amazonaws.com"
+      },
+      Action = "sts:AssumeRoleWithWebIdentity",
+      Condition = {
+        StringEquals = {
+          "cognito-identity.amazonaws.com:aud" = aws_cognito_identity_pool.identities.id
+        },
+        "ForAnyValue:StringLike" = {
+          "cognito-identity.amazonaws.com:amr" = "unauthenticated"
+        }
+      }
+    }]
+  })
+}
+
+resource "aws_cognito_identity_pool_roles_attachment" "attach" {
+  identity_pool_id = aws_cognito_identity_pool.identities.id
+  roles = {
+    authenticated   = aws_iam_role.auth_role.arn
+    unauthenticated = aws_iam_role.unauth_role.arn
+  }
+}
+
+# IAM Policies for Cognito
+resource "aws_iam_role_policy" "auth_policy" {
+  role = aws_iam_role.auth_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [{
+      Effect = "Allow",
+      Action = [
+        "dynamodb:PutItem",
+        "dynamodb:GetItem",
+        "dynamodb:UpdateItem",
+        # "dynamodb:DeleteItem",
+        "dynamodb:Query",
+        # "dynamodb:Scan"
+      ]
+      Resource = aws_dynamodb_table.secrets.arn
+    }]
+  })
+}
+
+resource "aws_iam_role_policy" "unauth_policy" {
+  role = aws_iam_role.unauth_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [{
+      Effect = "Allow",
+      Action = [
+        "dynamodb:PutItem",
+        "dynamodb:GetItem",
+        "dynamodb:UpdateItem",
+        # "dynamodb:DeleteItem",
+        "dynamodb:Query",
+        # "dynamodb:Scan"
+      ]
+      Resource = aws_dynamodb_table.secrets.arn
+    }]
+  })
+}
+
+resource "aws_iam_role_policy" "lambda_cognito_policy" {
+  role = aws_iam_role.lambda_exec.id
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [{
+      Effect   = "Allow",
+      Action   = [
+        "cognito-idp:SignUp",
+        "cognito-idp:AdminInitiateAuth",
+        "cognito-idp:AdminGetUser",
+        "cognito-idp:AdminConfirmSignUp"
+      ],
+      Resource = "*"
+    }]
+  })
+}
+
 # IAM Role for Lambdas
 # See https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role#basic-example
 resource "aws_iam_role" "lambda_exec" {
   name = "${local.name_prefix}-lambda-exec"
 
-  # Terraform's "jsonencode" function converts a
-  # Terraform expression result to valid JSON syntax.
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -98,7 +209,7 @@ resource "aws_iam_policy" "lambda_dynamodb_policy" {
         ]
         Resource = [
           aws_dynamodb_table.secrets.arn,
-          "${aws_dynamodb_table.secrets.arn}/index/*"  # For GSI access
+          "${aws_dynamodb_table.secrets.arn}/index/*" # For GSI access
         ]
       }
     ]
@@ -133,7 +244,6 @@ resource "aws_iam_policy" "lambda_s3_policy" {
   })
 }
 
-
 # Attach policies to lambda_exec role
 resource "aws_iam_role_policy_attachment" "lambda_basic_execution" {
   role       = aws_iam_role.lambda_exec.name
@@ -154,6 +264,5 @@ resource "aws_iam_role_policy_attachment" "lambda_s3_policy" {
   role       = aws_iam_role.lambda_exec.name
   policy_arn = aws_iam_policy.lambda_s3_policy.arn
 }
-
 
 #TODO: Similar policies must be created for other Lambdas
