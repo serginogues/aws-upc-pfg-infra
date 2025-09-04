@@ -265,4 +265,52 @@ resource "aws_iam_role_policy_attachment" "lambda_s3_policy" {
   policy_arn = aws_iam_policy.lambda_s3_policy.arn
 }
 
-#TODO: Similar policies must be created for other Lambdas
+resource "aws_iam_role_policy" "lambda_execution_policy" {
+  name = "lambda_qr_code_processor_policy"
+  role = aws_iam_role.lambda_exec.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
+        ]
+        Resource = "arn:aws:logs:*:*:*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:GetObject",
+          "s3:GeneratePresignedUrl"
+        ]
+        Resource = "${aws_s3_bucket.qrcodes-bucket.arn}/*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "sns:Publish"
+        ]
+        Resource = aws_sns_topic.qr_code_notification_topic.arn
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "cognito-idp:AdminGetUser"
+        ]
+        Resource = aws_cognito_user_pool.secrets_user_pool.arn
+      }
+    ]
+  })
+}
+
+resource "aws_lambda_permission" "allow_s3_invoke_lambda" {
+  statement_id  = "AllowExecutionFromS3Bucket"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.send_qrcode_upload_function.function_name
+  principal     = "s3.amazonaws.com"
+  source_arn    = aws_s3_bucket.qrcodes-bucket.arn
+}

@@ -99,3 +99,26 @@ resource "aws_lambda_function" "auth_lambda" {
     }
   }
 }
+
+# Send QR with SNS topic
+resource "aws_lambda_function" "send_qrcode_upload_function" {
+  filename      = "dummyzip.zip"
+  role          = aws_iam_role.lambda_exec.arn
+  function_name = "${local.name_prefix}-send_qrcode_upload_function"
+  handler       = "index.handler"
+  runtime       = "nodejs22.x"
+  memory_size   = 512
+  timeout       = 30
+  architectures = ["x86_64"]
+
+#   s3_bucket     = data.terraform_remote_state.aws_upc_pfg_tfstate.outputs.lambda_s3_bucket
+#   s3_key        = data.terraform_remote_state.aws_upc_pfg_tfstate.outputs.send_qrcode_upload_function_s3_key
+#   s3_object_version   = data.terraform_remote_state.aws_upc_pfg_tfstate.outputs.send_qrcode_upload_function_s3_object_version
+
+  environment {
+    variables = {
+      USER_POOL_ID   = aws_cognito_user_pool.secrets_user_pool.id
+      SNS_TOPIC_ARN  = aws_sns_topic.qr_code_notification_topic.arn
+    }
+  }
+}
