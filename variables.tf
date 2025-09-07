@@ -21,6 +21,11 @@ variable "account_name" {
   description = "Name of the AWS account"
 }
 
+variable sender_email {
+  type = string
+  description = "Email to use as sender"
+}
+
 locals {
   name_prefix = "${var.app-name}-${var.environment}"
 }
