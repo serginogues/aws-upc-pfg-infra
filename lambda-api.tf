@@ -20,6 +20,7 @@ resource "aws_lambda_function" "secrets_function" {
       COGNITO_USER_POOL_ID  = aws_cognito_user_pool.secrets_user_pool.id
       COGNITO_CLIENT_ID     = aws_cognito_user_pool_client.secrets_cognito_client.id
       COGNITO_CLIENT_SECRET = aws_cognito_user_pool_client.secrets_cognito_client.client_secret
+      # AWS_REGION            = var.region
     }
   }
 }
@@ -46,6 +47,7 @@ resource "aws_lambda_function" "acknowledge_function" {
       COGNITO_USER_POOL_ID  = aws_cognito_user_pool.secrets_user_pool.id
       COGNITO_CLIENT_ID     = aws_cognito_user_pool_client.secrets_cognito_client.id
       COGNITO_CLIENT_SECRET = aws_cognito_user_pool_client.secrets_cognito_client.client_secret
+      # AWS_REGION            = var.region
     }
   }
 }
@@ -73,6 +75,7 @@ resource "aws_lambda_function" "qrcode_generator_function" {
       COGNITO_USER_POOL_ID  = aws_cognito_user_pool.secrets_user_pool.id
       COGNITO_CLIENT_ID     = aws_cognito_user_pool_client.secrets_cognito_client.id
       COGNITO_CLIENT_SECRET = aws_cognito_user_pool_client.secrets_cognito_client.client_secret
+      # AWS_REGION            = var.region
     }
   }
 }
@@ -96,6 +99,7 @@ resource "aws_lambda_function" "auth_lambda" {
       COGNITO_USER_POOL_ID  = aws_cognito_user_pool.secrets_user_pool.id
       COGNITO_CLIENT_ID     = aws_cognito_user_pool_client.secrets_cognito_client.id
       COGNITO_CLIENT_SECRET = aws_cognito_user_pool_client.secrets_cognito_client.client_secret
+      # AWS_REGION            = var.region
     }
   }
 }
@@ -116,9 +120,11 @@ resource "aws_lambda_function" "send_qrcode_email_notification_function" {
 
   environment {
     variables = {
-      USER_POOL_ID  = aws_cognito_user_pool.secrets_user_pool.id
-      SENDER_EMAIL = var.sender_email
-      # SNS_TOPIC_ARN = aws_sns_topic.qr_code_notification_topic.arn
+      USER_POOL_ID         = aws_cognito_user_pool.secrets_user_pool.id
+      SENDER_EMAIL         = var.sender_email
+      QR_CODES_BUCKET_NAME = aws_s3_bucket.qrcodes-bucket.bucket
+      COGNITO_USER_POOL_ID  = aws_cognito_user_pool.secrets_user_pool.id
+      # AWS_REGION           = var.region
     }
   }
 }

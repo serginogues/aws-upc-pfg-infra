@@ -21,8 +21,8 @@ variable "account_name" {
   description = "Name of the AWS account"
 }
 
-variable sender_email {
-  type = string
+variable "sender_email" {
+  type        = string
   description = "Email to use as sender"
 }
 

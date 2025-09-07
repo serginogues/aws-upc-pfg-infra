@@ -289,13 +289,6 @@ resource "aws_iam_role_policy" "lambda_execution_policy" {
         ]
         Resource = "${aws_s3_bucket.qrcodes-bucket.arn}/*"
       },
-      # {
-      #   Effect = "Allow"
-      #   Action = [
-      #     "sns:Publish"
-      #   ]
-      #   Resource = aws_sns_topic.qr_code_notification_topic.arn
-      # },
       {
         Effect = "Allow"
         Action = [
