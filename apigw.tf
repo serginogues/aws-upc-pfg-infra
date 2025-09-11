@@ -52,6 +52,7 @@ resource "aws_api_gateway_method" "get_secrets" {
   resource_id   = aws_api_gateway_resource.secrets.id
   http_method   = "GET"
   authorization = "NONE"
+  api_key_required = true
 }
 
 resource "aws_api_gateway_integration" "get_secrets_integration" {
@@ -70,6 +71,7 @@ resource "aws_api_gateway_method" "get_secret_by_id" {
   resource_id   = aws_api_gateway_resource.secret_id.id
   http_method   = "GET"
   authorization = "NONE"
+  api_key_required = true
 }
 
 resource "aws_api_gateway_integration" "get_secret_by_id_integration" {
@@ -88,6 +90,7 @@ resource "aws_api_gateway_method" "create_secret" {
   resource_id   = aws_api_gateway_resource.secrets.id
   http_method   = "POST"
   authorization = "NONE"
+  api_key_required = true
 }
 
 resource "aws_api_gateway_integration" "create_secret_integration" {
@@ -106,6 +109,7 @@ resource "aws_api_gateway_method" "acknowledge_secret" {
   resource_id   = aws_api_gateway_resource.ack_secret_id.id
   http_method   = "GET"
   authorization = "NONE"
+  api_key_required = true
 }
 
 resource "aws_api_gateway_integration" "acknowledge_secret_integration" {
@@ -124,6 +128,7 @@ resource "aws_api_gateway_method" "signup" {
   resource_id   = aws_api_gateway_resource.signup.id
   http_method   = "POST"
   authorization = "NONE"
+  api_key_required = true
 }
 
 resource "aws_api_gateway_integration" "auth_signup_integration" {
@@ -142,6 +147,7 @@ resource "aws_api_gateway_method" "signin" {
   resource_id   = aws_api_gateway_resource.signin.id
   http_method   = "POST"
   authorization = "NONE"
+  api_key_required = true
 }
 
 resource "aws_api_gateway_integration" "auth_signin_integration" {
@@ -199,4 +205,26 @@ resource "aws_api_gateway_stage" "default" {
   stage_name       = var.environment
   deployment_id    = aws_api_gateway_deployment.secrets_api_deployment.id
   xray_tracing_enabled = false
+}
+
+# API Key
+resource "aws_api_gateway_api_key" "secrets_api_key" {
+  name        = "${local.name_prefix}-secrets_api_key"
+  description = "API Key for Secrets API"
+  enabled     = true
+}
+
+resource "aws_api_gateway_usage_plan" "secrets_api_usage_plan" {
+  name        = "${local.name_prefix}-secrets_api_usage_plan"
+  description = "Usage plan for Secrets API"
+  api_stages {
+    api_id = aws_api_gateway_rest_api.secrets_api.id
+    stage  = aws_api_gateway_stage.default.stage_name
+  }
+}
+
+resource "aws_api_gateway_usage_plan_key" "secrets_api_usage_plan_key" {
+  key_type = "API_KEY"
+  key_id        = aws_api_gateway_api_key.secrets_api_key.id
+  usage_plan_id = aws_api_gateway_usage_plan.secrets_api_usage_plan.id
 }
