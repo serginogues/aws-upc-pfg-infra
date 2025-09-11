@@ -29,10 +29,10 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
+      - GF_SECURITY_ADMIN_PASSWORD=${grafana_admin_password}
       - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource,grafana-piechart-panel
       - GF_AWS_ALLOWED_AUTH_PROVIDERS=default,keys,credentials
-      - GF_AWS_DEFAULT_REGION=${AWS_REGION}
+      - GF_AWS_DEFAULT_REGION=${region}
     volumes:
       - grafana-storage:/var/lib/grafana
       - ./provisioning:/etc/grafana/provisioning
@@ -59,10 +59,10 @@ datasources:
   - name: CloudWatch
     type: cloudwatch
     access: proxy
-    url: https://monitoring.${AWS_REGION}.amazonaws.com
+    url: https://monitoring.${region}.amazonaws.com
     jsonData:
       authType: default
-      defaultRegion: ${AWS_REGION}
+      defaultRegion: ${region}
     isDefault: true
     editable: true
 EOF
@@ -177,10 +177,6 @@ cat > provisioning/dashboards/lambda-dashboard.json << 'EOF'
 }
 EOF
 
-# Set environment variables
-export GRAFANA_ADMIN_PASSWORD="${grafana_admin_password}"
-export AWS_REGION="${region}"
-
 # Start Grafana with Docker Compose
 docker-compose up -d
 
@@ -194,10 +190,10 @@ curl -X POST \
     "name": "CloudWatch",
     "type": "cloudwatch",
     "access": "proxy",
-    "url": "https://monitoring.'${region}'.amazonaws.com",
+    "url": "https://monitoring.${region}.amazonaws.com",
     "jsonData": {
       "authType": "default",
-      "defaultRegion": "'${region}'"
+      "defaultRegion": "${region}"
     },
     "isDefault": true
   }' \
