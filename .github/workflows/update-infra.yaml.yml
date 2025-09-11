@@ -27,5 +27,5 @@ jobs:
         run: terraform init
 
       - name: Apply Terraform and upload Lambdas
-        run: terraform apply -var "account_name=${{secrets.ACCOUNT_NAME}}" -var "sender_name=${{secrets.SENDER_EMAIL}}" --auto-approve
+        run: terraform apply -var "account_name=${{secrets.ACCOUNT_NAME}}" -var "sender_email=${{secrets.SENDER_EMAIL}}" --auto-approve
         
