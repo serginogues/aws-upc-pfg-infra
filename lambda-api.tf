@@ -8,8 +8,8 @@ resource "aws_lambda_function" "secrets_function" {
   timeout       = 30
   architectures = ["x86_64"]
 
-  s3_bucket     = data.terraform_remote_state.aws_upc_pfg_tfstate.outputs.lambda_s3_bucket
-  s3_key        = data.terraform_remote_state.aws_upc_pfg_tfstate.outputs.secrets_function_s3_key
+  s3_bucket     = "aws-upc-pfg-marc10010-lambda-bucket"
+  s3_key        = "aws-upc-pfg-marc10010-secrets.zip"
   # s3_object_version   = data.terraform_remote_state.aws_upc_pfg_tfstate.outputs.secrets_function_s3_object_version
 
   environment {
@@ -31,8 +31,8 @@ resource "aws_lambda_function" "acknowledge_function" {
   timeout       = 30
   architectures = ["x86_64"]
 
-  s3_bucket     = data.terraform_remote_state.aws_upc_pfg_tfstate.outputs.lambda_s3_bucket
-  s3_key        = data.terraform_remote_state.aws_upc_pfg_tfstate.outputs.acknowledge_function_s3_key
+  s3_bucket     = "aws-upc-pfg-marc10010-lambda-bucket"
+  s3_key        = "aws-upc-pfg-marc10010-acknowledge.zip"
   # s3_object_version   = data.terraform_remote_state.aws_upc_pfg_tfstate.outputs.acknowledge_function_s3_object_version
 
   environment {
@@ -54,8 +54,8 @@ resource "aws_lambda_function" "qrcode_generator_function" {
   timeout       = 30
   architectures = ["x86_64"]
 
-  s3_bucket     = data.terraform_remote_state.aws_upc_pfg_tfstate.outputs.lambda_s3_bucket
-  s3_key        = data.terraform_remote_state.aws_upc_pfg_tfstate.outputs.qrcode_generator_function_s3_key
+  s3_bucket     = "aws-upc-pfg-marc10010-lambda-bucket"
+  s3_key        = "aws-upc-pfg-marc10010-qrcode-generator.zip"
   # s3_object_version   = data.terraform_remote_state.aws_upc_pfg_tfstate.outputs.qrcode_generator_function_s3_object_version
 
   environment {
