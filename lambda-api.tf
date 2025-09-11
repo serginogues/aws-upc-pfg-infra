@@ -10,7 +10,7 @@ resource "aws_lambda_function" "secrets_function" {
 
   s3_bucket     = data.terraform_remote_state.aws_upc_pfg_tfstate.outputs.lambda_s3_bucket
   s3_key        = data.terraform_remote_state.aws_upc_pfg_tfstate.outputs.secrets_function_s3_key
-  s3_object_version   = data.terraform_remote_state.aws_upc_pfg_tfstate.outputs.secrets_function_s3_object_version
+  # s3_object_version   = data.terraform_remote_state.aws_upc_pfg_tfstate.outputs.secrets_function_s3_object_version
 
   environment {
     variables = {
@@ -33,7 +33,7 @@ resource "aws_lambda_function" "acknowledge_function" {
 
   s3_bucket     = data.terraform_remote_state.aws_upc_pfg_tfstate.outputs.lambda_s3_bucket
   s3_key        = data.terraform_remote_state.aws_upc_pfg_tfstate.outputs.acknowledge_function_s3_key
-  s3_object_version   = data.terraform_remote_state.aws_upc_pfg_tfstate.outputs.acknowledge_function_s3_object_version
+  # s3_object_version   = data.terraform_remote_state.aws_upc_pfg_tfstate.outputs.acknowledge_function_s3_object_version
 
   environment {
     variables = {
@@ -56,7 +56,7 @@ resource "aws_lambda_function" "qrcode_generator_function" {
 
   s3_bucket     = data.terraform_remote_state.aws_upc_pfg_tfstate.outputs.lambda_s3_bucket
   s3_key        = data.terraform_remote_state.aws_upc_pfg_tfstate.outputs.qrcode_generator_function_s3_key
-  s3_object_version   = data.terraform_remote_state.aws_upc_pfg_tfstate.outputs.qrcode_generator_function_s3_object_version
+  # s3_object_version   = data.terraform_remote_state.aws_upc_pfg_tfstate.outputs.qrcode_generator_function_s3_object_version
 
   environment {
     variables = {
