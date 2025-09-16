@@ -14,11 +14,20 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 5.0"
     }
+    grafana = {
+      source  = "grafana/grafana"
+      version = "~> 2.0"
+    }
   }
 }
 
 provider "aws" {
   region = var.region
+}
+
+provider "grafana" {
+  url     = "http://${aws_eip.grafana.public_ip}:3000"
+  auth    = "admin:${var.grafana_admin_password}"
 }
 
 data "terraform_remote_state" "aws_upc_pfg_tfstate" {
