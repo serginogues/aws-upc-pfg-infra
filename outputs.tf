@@ -1,9 +1,4 @@
 # Outputs
-#TODO
-# output "api_gateway_url" {
-#   value = aws_apigatewayv2_api.demo_http.api_endpoint
-# }
-
 output "dynamodb_table_name" {
   value = aws_dynamodb_table.secrets.name
 }
@@ -18,4 +13,8 @@ output "secrets_journal_queue_url" {
 
 output "qr_code_queue_url" {
   value = aws_sqs_queue.qr_code_queue.url
+}
+
+output "api_gateway_url" {
+  value = "https://${aws_api_gateway_rest_api.secrets_api.id}.execute-api.${var.region}.amazonaws.com/${var.environment}"
 }

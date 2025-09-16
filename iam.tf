@@ -1,10 +1,121 @@
+# IAM Roles for Cognito
+resource "aws_iam_role" "auth_role" {
+  name = "cognito_authenticated"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [{
+      Effect    = "Allow",
+      Principal = {
+        Federated = "cognito-identity.amazonaws.com"
+      },
+      Action = "sts:AssumeRoleWithWebIdentity",
+      Condition = {
+        StringEquals = {
+          "cognito-identity.amazonaws.com:aud" = aws_cognito_identity_pool.identities.id
+        },
+        "ForAnyValue:StringLike" = {
+          "cognito-identity.amazonaws.com:amr" = "authenticated"
+        }
+      }
+    }]
+  })
+}
+
+resource "aws_iam_role" "unauth_role" {
+  name = "cognito_unauthenticated"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [{
+      Effect    = "Allow",
+      Principal = {
+        Federated = "cognito-identity.amazonaws.com"
+      },
+      Action = "sts:AssumeRoleWithWebIdentity",
+      Condition = {
+        StringEquals = {
+          "cognito-identity.amazonaws.com:aud" = aws_cognito_identity_pool.identities.id
+        },
+        "ForAnyValue:StringLike" = {
+          "cognito-identity.amazonaws.com:amr" = "unauthenticated"
+        }
+      }
+    }]
+  })
+}
+
+resource "aws_cognito_identity_pool_roles_attachment" "attach" {
+  identity_pool_id = aws_cognito_identity_pool.identities.id
+  roles = {
+    authenticated   = aws_iam_role.auth_role.arn
+    unauthenticated = aws_iam_role.unauth_role.arn
+  }
+}
+
+# IAM Policies for Cognito
+resource "aws_iam_role_policy" "auth_policy" {
+  role = aws_iam_role.auth_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [{
+      Effect = "Allow",
+      Action = [
+        "dynamodb:PutItem",
+        "dynamodb:GetItem",
+        "dynamodb:UpdateItem",
+        # "dynamodb:DeleteItem",
+        "dynamodb:Query",
+        # "dynamodb:Scan"
+      ]
+      Resource = aws_dynamodb_table.secrets.arn
+    }]
+  })
+}
+
+resource "aws_iam_role_policy" "unauth_policy" {
+  role = aws_iam_role.unauth_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [{
+      Effect = "Allow",
+      Action = [
+        "dynamodb:PutItem",
+        "dynamodb:GetItem",
+        "dynamodb:UpdateItem",
+        # "dynamodb:DeleteItem",
+        "dynamodb:Query",
+        # "dynamodb:Scan"
+      ]
+      Resource = aws_dynamodb_table.secrets.arn
+    }]
+  })
+}
+
+resource "aws_iam_role_policy" "lambda_cognito_policy" {
+  role = aws_iam_role.lambda_exec.id
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [{
+      Effect   = "Allow",
+      Action   = [
+        "cognito-idp:SignUp",
+        "cognito-idp:AdminInitiateAuth",
+        "cognito-idp:AdminGetUser",
+        "cognito-idp:AdminConfirmSignUp"
+      ],
+      Resource = "*"
+    }]
+  })
+}
+
 # IAM Role for Lambdas
 # See https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role#basic-example
 resource "aws_iam_role" "lambda_exec" {
   name = "${local.name_prefix}-lambda-exec"
 
-  # Terraform's "jsonencode" function converts a
-  # Terraform expression result to valid JSON syntax.
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -98,7 +209,7 @@ resource "aws_iam_policy" "lambda_dynamodb_policy" {
         ]
         Resource = [
           aws_dynamodb_table.secrets.arn,
-          "${aws_dynamodb_table.secrets.arn}/index/*"  # For GSI access
+          "${aws_dynamodb_table.secrets.arn}/index/*" # For GSI access
         ]
       }
     ]
@@ -133,7 +244,6 @@ resource "aws_iam_policy" "lambda_s3_policy" {
   })
 }
 
-
 # Attach policies to lambda_exec role
 resource "aws_iam_role_policy_attachment" "lambda_basic_execution" {
   role       = aws_iam_role.lambda_exec.name
@@ -155,5 +265,52 @@ resource "aws_iam_role_policy_attachment" "lambda_s3_policy" {
   policy_arn = aws_iam_policy.lambda_s3_policy.arn
 }
 
+resource "aws_iam_role_policy" "lambda_execution_policy" {
+  name = "lambda_qr_code_processor_policy"
+  role = aws_iam_role.lambda_exec.id
 
-#TODO: Similar policies must be created for other Lambdas
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
+        ]
+        Resource = "arn:aws:logs:*:*:*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:GetObject",
+          "s3:GeneratePresignedUrl"
+        ]
+        Resource = "${aws_s3_bucket.qrcodes-bucket.arn}/*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "sns:Publish"
+        ]
+        Resource = aws_sns_topic.qr_code_notification_topic.arn
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "cognito-idp:AdminGetUser"
+        ]
+        Resource = aws_cognito_user_pool.secrets_user_pool.arn
+      }
+    ]
+  })
+}
+
+resource "aws_lambda_permission" "allow_s3_invoke_lambda" {
+  statement_id  = "AllowExecutionFromS3Bucket"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.send_qrcode_upload_function.function_name
+  principal     = "s3.amazonaws.com"
+  source_arn    = aws_s3_bucket.qrcodes-bucket.arn
+}

@@ -34,18 +34,3 @@ resource "aws_dynamodb_table" "secrets" {
     Name = "secrets"
   }
 }
-
-# S3 bucket for QRs
-resource "aws_s3_bucket" "qrcodes-bucket" {
-  bucket = "${local.name_prefix}-qrcodes-bucket-${var.account_name}"
-  force_destroy = true
-}
-
-# Future improvements:
-# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_versioning
-# resource "aws_s3_bucket_versioning" "qr_codes" {
-#   bucket = aws_s3_bucket.qr_codes.id
-#   versioning_configuration {
-#     status = "Enabled"
-#   }
-# }
