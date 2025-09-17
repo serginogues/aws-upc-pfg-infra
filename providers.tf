@@ -26,14 +26,14 @@ provider "aws" {
 }
 
 provider "grafana" {
-  url     = "http://${aws_eip.grafana.public_ip}:3000"
+  url     = "http://${aws_instance.grafana.private_ip}:3000"
   auth    = "admin:${var.grafana_admin_password}"
- }
+}
 
 data "terraform_remote_state" "aws_upc_pfg_tfstate" {
   backend = "s3"
   config = {
-    bucket = "aws-upc-pfg-tfstate-bucket-marc10010"  # Producer project's state bucket
+    bucket = "aws-upc-pfg-tfstate-bucket-${var.account_name}"  # Producer project's state bucket
     key    = "aws-upc-pfg-code/terraform.tfstate"
     region = "us-east-1"
   }
