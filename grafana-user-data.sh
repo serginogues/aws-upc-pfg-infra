@@ -67,6 +67,7 @@ done
 
 # Log completion
 echo "Grafana installation completed at $(date)" >> /var/log/grafana-setup.log
-echo "Access Grafana at: http://$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4):3000" >> /var/log/grafana-setup.log
+echo "Access Grafana at: http://$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4):3000" >> /var/log/grafana-setup.log
 echo "Admin password: ${grafana_admin_password}" >> /var/log/grafana-setup.log
+echo "IMPORTANT: Grafana is deployed in private subnet - use SSH tunnel or bastion host to access" >> /var/log/grafana-setup.log
 echo "IMPORTANT: Configure CloudWatch datasource manually with IAM user credentials" >> /var/log/grafana-setup.log

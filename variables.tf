@@ -54,11 +54,7 @@ variable "grafana_admin_password" {
   sensitive   = true
 }
 
-variable "allowed_cidr_blocks" {
-  description = "CIDR blocks allowed to access Grafana"
-  type        = list(string)
-  default     = ["0.0.0.0/0"] # Cambiar por tu IP específica en producción
-}
+# Note: allowed_cidr_blocks not used in private subnet deployment
 
 locals {
   name_prefix = "${var.app-name}-${var.environment}"

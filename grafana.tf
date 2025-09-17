@@ -26,7 +26,7 @@ resource "aws_internet_gateway" "grafana_igw" {
   }
 }
 
-# Public Subnet
+# Public Subnet (for NAT Gateway)
 resource "aws_subnet" "grafana_public" {
   vpc_id                  = aws_vpc.grafana_vpc.id
   cidr_block              = "10.0.1.0/24"
@@ -37,10 +37,52 @@ resource "aws_subnet" "grafana_public" {
     Name        = "${local.name_prefix}-grafana-public"
     Environment = var.environment
     Project     = var.app-name
+    Type        = "public"
   }
 }
 
-# Route Table
+# Private Subnet (for Grafana)
+resource "aws_subnet" "grafana_private" {
+  vpc_id            = aws_vpc.grafana_vpc.id
+  cidr_block        = "10.0.2.0/24"
+  availability_zone = "${var.region}a"
+
+  tags = {
+    Name        = "${local.name_prefix}-grafana-private"
+    Environment = var.environment
+    Project     = var.app-name
+    Type        = "private"
+  }
+}
+
+# Elastic IP for NAT Gateway
+resource "aws_eip" "grafana_nat" {
+  domain = "vpc"
+
+  tags = {
+    Name        = "${local.name_prefix}-grafana-nat-eip"
+    Environment = var.environment
+    Project     = var.app-name
+  }
+
+  depends_on = [aws_internet_gateway.grafana_igw]
+}
+
+# NAT Gateway
+resource "aws_nat_gateway" "grafana_nat" {
+  allocation_id = aws_eip.grafana_nat.id
+  subnet_id     = aws_subnet.grafana_public.id
+
+  tags = {
+    Name        = "${local.name_prefix}-grafana-nat"
+    Environment = var.environment
+    Project     = var.app-name
+  }
+
+  depends_on = [aws_internet_gateway.grafana_igw]
+}
+
+# Public Route Table
 resource "aws_route_table" "grafana_public" {
   vpc_id = aws_vpc.grafana_vpc.id
 
@@ -56,10 +98,32 @@ resource "aws_route_table" "grafana_public" {
   }
 }
 
-# Route Table Association
+# Private Route Table
+resource "aws_route_table" "grafana_private" {
+  vpc_id = aws_vpc.grafana_vpc.id
+
+  route {
+    cidr_block     = "0.0.0.0/0"
+    nat_gateway_id = aws_nat_gateway.grafana_nat.id
+  }
+
+  tags = {
+    Name        = "${local.name_prefix}-grafana-private-rt"
+    Environment = var.environment
+    Project     = var.app-name
+  }
+}
+
+# Public Route Table Association
 resource "aws_route_table_association" "grafana_public" {
   subnet_id      = aws_subnet.grafana_public.id
   route_table_id = aws_route_table.grafana_public.id
+}
+
+# Private Route Table Association
+resource "aws_route_table_association" "grafana_private" {
+  subnet_id      = aws_subnet.grafana_private.id
+  route_table_id = aws_route_table.grafana_private.id
 }
 
 # =============================================================================
@@ -71,34 +135,34 @@ resource "aws_security_group" "grafana" {
   name_prefix = "${local.name_prefix}-grafana-"
   vpc_id      = aws_vpc.grafana_vpc.id
 
-  # HTTP access
+  # HTTP access - only from VPC
   ingress {
     from_port   = 3000
     to_port     = 3000
     protocol    = "tcp"
-    cidr_blocks = var.allowed_cidr_blocks
-    description = "Grafana HTTP"
+    cidr_blocks = [aws_vpc.grafana_vpc.cidr_block]
+    description = "Grafana HTTP from VPC"
   }
 
-  # HTTPS access
+  # HTTPS access - only from VPC
   ingress {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-    cidr_blocks = var.allowed_cidr_blocks
-    description = "HTTPS"
+    cidr_blocks = [aws_vpc.grafana_vpc.cidr_block]
+    description = "HTTPS from VPC"
   }
 
-  # SSH access
+  # SSH access - only from VPC (for bastion access)
   ingress {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = var.allowed_cidr_blocks
-    description = "SSH"
+    cidr_blocks = [aws_vpc.grafana_vpc.cidr_block]
+    description = "SSH from VPC"
   }
 
-  # All outbound traffic
+  # All outbound traffic (needed for CloudWatch API calls)
   egress {
     from_port   = 0
     to_port     = 0
@@ -111,6 +175,7 @@ resource "aws_security_group" "grafana" {
     Name        = "${local.name_prefix}-grafana-sg"
     Environment = var.environment
     Project     = var.app-name
+    Subnet      = "private"
   }
 }
 
@@ -230,7 +295,7 @@ locals {
 resource "aws_instance" "grafana" {
   ami                    = data.aws_ami.amazon_linux.id
   instance_type          = var.grafana_instance_type
-  subnet_id              = aws_subnet.grafana_public.id
+  subnet_id              = aws_subnet.grafana_private.id
   vpc_security_group_ids = [aws_security_group.grafana.id]
   iam_instance_profile   = aws_iam_instance_profile.grafana_profile.name
 
@@ -247,33 +312,19 @@ resource "aws_instance" "grafana" {
     Environment = var.environment
     Project     = var.app-name
     Service     = "monitoring"
+    Subnet      = "private"
   }
 }
 
-# Elastic IP for Grafana
-resource "aws_eip" "grafana" {
-  instance = aws_instance.grafana.id
-  domain   = "vpc"
-
-  tags = {
-    Name        = "${local.name_prefix}-grafana-eip"
-    Environment = var.environment
-    Project     = var.app-name
-  }
-}
+# Note: No Elastic IP needed for private subnet deployment
 
 # =============================================================================
 # OUTPUTS
 # =============================================================================
 
-output "grafana_url" {
-  description = "URL to access Grafana"
-  value       = "http://${aws_eip.grafana.public_ip}:3000"
-}
-
-output "grafana_public_ip" {
-  description = "Public IP of Grafana instance"
-  value       = aws_eip.grafana.public_ip
+output "grafana_private_ip" {
+  description = "Private IP of Grafana instance"
+  value       = aws_instance.grafana.private_ip
 }
 
 output "grafana_instance_id" {
@@ -285,4 +336,16 @@ output "grafana_admin_password" {
   description = "Admin password for Grafana (sensitive)"
   value       = var.grafana_admin_password
   sensitive   = true
+}
+
+output "grafana_access_info" {
+  description = "Information about accessing Grafana in private subnet"
+  value = {
+    private_ip     = aws_instance.grafana.private_ip
+    instance_id    = aws_instance.grafana.id
+    vpc_id         = aws_vpc.grafana_vpc.id
+    subnet_id      = aws_subnet.grafana_private.id
+    access_method  = "VPN or direct VPC access required"
+    grafana_url    = "http://${aws_instance.grafana.private_ip}:3000"
+  }
 }
