@@ -307,10 +307,3 @@ resource "aws_iam_role_policy" "lambda_execution_policy" {
   })
 }
 
-resource "aws_lambda_permission" "allow_s3_invoke_lambda" {
-  statement_id  = "AllowExecutionFromS3Bucket"
-  action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.send_qrcode_upload_function.function_name
-  principal     = "s3.amazonaws.com"
-  source_arn    = aws_s3_bucket.qrcodes-bucket.arn
-}

@@ -130,6 +130,37 @@ resource "aws_route_table_association" "grafana_private" {
 # SECURITY GROUPS
 # =============================================================================
 
+# Security Group for Bastion Host
+resource "aws_security_group" "bastion" {
+  name_prefix = "${local.name_prefix}-bastion-"
+  vpc_id      = aws_vpc.grafana_vpc.id
+
+  # SSH access from anywhere (for bastion access)
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "SSH from anywhere"
+  }
+
+  # All outbound traffic
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "All outbound traffic"
+  }
+
+  tags = {
+    Name        = "${local.name_prefix}-bastion-sg"
+    Environment = var.environment
+    Project     = var.app-name
+    Subnet      = "public"
+  }
+}
+
 # Security Group for Grafana
 resource "aws_security_group" "grafana" {
   name_prefix = "${local.name_prefix}-grafana-"
@@ -153,13 +184,13 @@ resource "aws_security_group" "grafana" {
     description = "HTTPS from VPC"
   }
 
-  # SSH access - only from VPC (for bastion access)
+  # SSH access - only from bastion host
   ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = [aws_vpc.grafana_vpc.cidr_block]
-    description = "SSH from VPC"
+    from_port       = 22
+    to_port         = 22
+    protocol        = "tcp"
+    security_groups = [aws_security_group.bastion.id]
+    description     = "SSH from bastion host"
   }
 
   # All outbound traffic (needed for CloudWatch API calls)
@@ -180,8 +211,117 @@ resource "aws_security_group" "grafana" {
 }
 
 # =============================================================================
+# BASTION HOST
+# =============================================================================
+
+# Generate SSH key pair for bastion
+resource "tls_private_key" "bastion_key" {
+  algorithm = "RSA"
+  rsa_bits  = 4096
+}
+
+resource "aws_key_pair" "bastion_key" {
+  key_name   = "${local.name_prefix}-bastion-key"
+  public_key = tls_private_key.bastion_key.public_key_openssh
+
+  tags = {
+    Name        = "${local.name_prefix}-bastion-key"
+    Environment = var.environment
+    Project     = var.app-name
+  }
+}
+
+# Save private key to file
+resource "local_file" "bastion_private_key" {
+  content  = tls_private_key.bastion_key.private_key_pem
+  filename = "${path.module}/bastion-key.pem"
+  file_permission = "0400"
+}
+
+# Bastion Host EC2 Instance
+resource "aws_instance" "bastion" {
+  ami                    = data.aws_ami.amazon_linux.id
+  instance_type          = "t3.micro"
+  subnet_id              = aws_subnet.grafana_public.id
+  vpc_security_group_ids = [aws_security_group.bastion.id]
+  key_name               = aws_key_pair.bastion_key.key_name
+
+  associate_public_ip_address = true
+
+  root_block_device {
+    volume_type = "gp3"
+    volume_size = 8
+    encrypted   = true
+  }
+
+  tags = {
+    Name        = "${local.name_prefix}-bastion"
+    Environment = var.environment
+    Project     = var.app-name
+    Service     = "bastion"
+    Subnet      = "public"
+  }
+}
+
+# =============================================================================
 # IAM ROLE FOR GRAFANA
 # =============================================================================
+
+# IAM User for Grafana
+resource "aws_iam_user" "grafana_user" {
+  name = "${local.name_prefix}-grafana-user"
+  path = "/"
+
+  tags = {
+    Name        = "${local.name_prefix}-grafana-user"
+    Environment = var.environment
+    Project     = var.app-name
+    Service     = "monitoring"
+  }
+}
+
+# IAM Policy for Grafana CloudWatch access
+resource "aws_iam_policy" "grafana_user_cloudwatch" {
+  name        = "${local.name_prefix}-grafana-user-cloudwatch"
+  description = "Policy for Grafana user to access CloudWatch metrics and logs"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "cloudwatch:GetMetricStatistics",
+          "cloudwatch:ListMetrics",
+          "cloudwatch:GetMetricData",
+          "cloudwatch:DescribeAlarms",
+          "logs:DescribeLogGroups",
+          "logs:DescribeLogStreams",
+          "logs:GetLogEvents",
+          "logs:FilterLogEvents"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+
+  tags = {
+    Name        = "${local.name_prefix}-grafana-user-cloudwatch-policy"
+    Environment = var.environment
+    Project     = var.app-name
+  }
+}
+
+# Attach policy to user
+resource "aws_iam_user_policy_attachment" "grafana_user_cloudwatch" {
+  user       = aws_iam_user.grafana_user.name
+  policy_arn = aws_iam_policy.grafana_user_cloudwatch.arn
+}
+
+# Create access keys for Grafana user
+resource "aws_iam_access_key" "grafana_user" {
+  user = aws_iam_user.grafana_user.name
+}
 
 # IAM Role for Grafana EC2 instance
 resource "aws_iam_role" "grafana_role" {
@@ -251,6 +391,12 @@ resource "aws_iam_role_policy_attachment" "grafana_ec2" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess"
 }
 
+# Attach AWS managed policy for Systems Manager
+resource "aws_iam_role_policy_attachment" "grafana_ssm" {
+  role       = aws_iam_role.grafana_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
+
 # Instance Profile
 resource "aws_iam_instance_profile" "grafana_profile" {
   name = "${local.name_prefix}-grafana-profile"
@@ -288,7 +434,57 @@ locals {
   grafana_user_data = base64encode(templatefile("${path.module}/grafana-user-data.sh", {
     grafana_admin_password = var.grafana_admin_password
     region                 = var.region
+    access_key             = aws_iam_access_key.grafana_user.id
+    secret_key             = aws_iam_access_key.grafana_user.secret
+    secrets_function       = aws_lambda_function.secrets_function.function_name
+    acknowledge_function   = aws_lambda_function.acknowledge_function.function_name
+    qrcode_function        = aws_lambda_function.qrcode_generator_function.function_name
+    dynamodb_table         = aws_dynamodb_table.secrets.name
   }))
+}
+
+# Upload provisioning files to S3
+resource "aws_s3_object" "grafana_datasource" {
+  bucket = "aws-upc-pfg-lambda-bucket-${var.account_name}"
+  key    = "grafana-provisioning/datasources/cloudwatch.yaml"
+  content = templatefile("${path.module}/grafana-provisioning/datasources/cloudwatch.yaml", {
+    region     = var.region
+    access_key = aws_iam_access_key.grafana_user.id
+    secret_key = aws_iam_access_key.grafana_user.secret
+  })
+}
+
+resource "aws_s3_object" "grafana_lambda_dashboard" {
+  bucket = "aws-upc-pfg-lambda-bucket-${var.account_name}"
+  key    = "grafana-provisioning/dashboards/lambda-monitoring.json"
+  content = templatefile("${path.module}/grafana-provisioning/dashboards/lambda-monitoring.json", {
+    region              = var.region
+    secrets_function    = aws_lambda_function.secrets_function.function_name
+    acknowledge_function = aws_lambda_function.acknowledge_function.function_name
+    qrcode_function     = aws_lambda_function.qrcode_generator_function.function_name
+  })
+}
+
+resource "aws_s3_object" "grafana_dynamodb_dashboard" {
+  bucket = "aws-upc-pfg-lambda-bucket-${var.account_name}"
+  key    = "grafana-provisioning/dashboards/dynamodb-monitoring.json"
+  content = templatefile("${path.module}/grafana-provisioning/dashboards/dynamodb-monitoring.json", {
+    region        = var.region
+    dynamodb_table = aws_dynamodb_table.secrets.name
+  })
+}
+
+resource "aws_s3_object" "grafana_dashboard_config" {
+  bucket = "aws-upc-pfg-lambda-bucket-${var.account_name}"
+  key    = "grafana-provisioning/dashboards/dashboard-config.yaml"
+  content = file("${path.module}/grafana-provisioning/dashboards/dashboard-config.yaml")
+}
+
+# Wait for Grafana to be ready
+resource "time_sleep" "wait_for_grafana" {
+  depends_on = [aws_instance.grafana]
+  
+  create_duration = "5m"
 }
 
 # EC2 Instance for Grafana
@@ -345,7 +541,110 @@ output "grafana_access_info" {
     instance_id    = aws_instance.grafana.id
     vpc_id         = aws_vpc.grafana_vpc.id
     subnet_id      = aws_subnet.grafana_private.id
-    access_method  = "VPN or direct VPC access required"
+    access_method  = "Use bastion host to access Grafana"
     grafana_url    = "http://${aws_instance.grafana.private_ip}:3000"
   }
+}
+
+output "bastion_access_info" {
+  description = "Information about accessing the bastion host"
+  value = {
+    public_ip      = aws_instance.bastion.public_ip
+    instance_id    = aws_instance.bastion.id
+    private_key    = "bastion-key.pem"
+    ssh_command    = "ssh -i bastion-key.pem ec2-user@${aws_instance.bastion.public_ip}"
+    grafana_tunnel = "ssh -i bastion-key.pem -L 3000:${aws_instance.grafana.private_ip}:3000 ec2-user@${aws_instance.bastion.public_ip}"
+  }
+}
+
+output "bastion_public_ip" {
+  description = "Public IP address of the bastion host"
+  value       = aws_instance.bastion.public_ip
+}
+
+output "grafana_cloudwatch_credentials" {
+  description = "Credentials for CloudWatch datasource configuration"
+  value = {
+    access_key_id     = aws_iam_access_key.grafana_user.id
+    secret_access_key = aws_iam_access_key.grafana_user.secret
+    region           = var.region
+  }
+  sensitive = true
+}
+
+output "grafana_manual_setup_instructions" {
+  description = "Instructions for manual CloudWatch datasource setup"
+  value = <<-EOT
+    If automatic datasource creation fails, configure manually:
+    
+    1. Go to Configuration → Data Sources → Add data source → CloudWatch
+    2. Set Authentication Provider to "Keys"
+    3. Access Key ID: [use grafana_cloudwatch_credentials output]
+    4. Secret Access Key: [use grafana_cloudwatch_credentials output]
+    5. Default Region: ${var.region}
+    6. Click "Save & Test"
+    
+    Grafana URL: http://${aws_instance.grafana.private_ip}:3000
+    Admin Password: ${var.grafana_admin_password}
+  EOT
+  sensitive = true
+}
+
+output "lambda_function_names" {
+  description = "Lambda function names for dashboard configuration"
+  value = {
+    secrets_function     = aws_lambda_function.secrets_function.function_name
+    acknowledge_function = aws_lambda_function.acknowledge_function.function_name
+    qrcode_function      = aws_lambda_function.qrcode_generator_function.function_name
+  }
+}
+
+output "grafana_datasource_uid" {
+  description = "Grafana CloudWatch datasource UID for dashboard configuration"
+  value       = "cloudwatch"  # Default UID for CloudWatch datasource
+}
+
+output "grafana_dashboard_instructions" {
+  description = "Instructions for creating dashboards manually"
+  value = <<-EOT
+    To create dashboards manually in Grafana:
+    
+    1. Go to Dashboards → New → New Dashboard
+    2. Add Panel → Add Visualization
+    3. Select CloudWatch as datasource
+    4. Use these function names:
+       - Secrets Function: ${aws_lambda_function.secrets_function.function_name}
+       - Acknowledge Function: ${aws_lambda_function.acknowledge_function.function_name}
+       - QR Code Function: ${aws_lambda_function.qrcode_generator_function.function_name}
+    
+    5. Recommended metrics:
+       - AWS/Lambda Invocations
+       - AWS/Lambda Errors
+       - AWS/Lambda Duration
+       - AWS/Lambda Throttles
+       - AWS/Lambda ConcurrentExecutions
+    
+    6. Set dimensions: FunctionName = [function_name]
+  EOT
+}
+
+output "grafana_user_access_key_id" {
+  description = "Access Key ID for Grafana user"
+  value       = aws_iam_access_key.grafana_user.id
+  sensitive   = true
+}
+
+output "grafana_user_credentials" {
+  description = "Grafana user credentials for CloudWatch access"
+  value = {
+    access_key_id     = aws_iam_access_key.grafana_user.id
+    secret_access_key = aws_iam_access_key.grafana_user.secret
+  }
+  sensitive = true
+}
+
+output "grafana_user_secret_access_key" {
+  description = "Secret Access Key for Grafana user"
+  value       = aws_iam_access_key.grafana_user.secret
+  sensitive   = true
 }

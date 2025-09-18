@@ -1,0 +1,161 @@
+{
+  "id": null,
+  "title": "AWS DynamoDB Monitoring",
+  "tags": ["dynamodb", "aws", "monitoring"],
+  "timezone": "browser",
+  "refresh": "30s",
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "DynamoDB Read Capacity",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "targets": [
+        {
+          "region": "${region}",
+          "queryMode": "Metrics",
+          "namespace": "AWS/DynamoDB",
+          "metricName": "ConsumedReadCapacityUnits",
+          "dimensions": {
+            "TableName": "${dynamodb_table}"
+          },
+          "statistic": "Sum",
+          "refId": "A",
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "cloudwatch"
+          }
+        }
+      ],
+      "yAxes": [
+        {
+          "label": "Read Capacity Units",
+          "min": 0
+        }
+      ],
+      "xAxis": {
+        "show": true
+      }
+    },
+    {
+      "id": 2,
+      "title": "DynamoDB Write Capacity",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
+      "targets": [
+        {
+          "region": "${region}",
+          "queryMode": "Metrics",
+          "namespace": "AWS/DynamoDB",
+          "metricName": "ConsumedWriteCapacityUnits",
+          "dimensions": {
+            "TableName": "${dynamodb_table}"
+          },
+          "statistic": "Sum",
+          "refId": "A",
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "cloudwatch"
+          }
+        }
+      ],
+      "yAxes": [
+        {
+          "label": "Write Capacity Units",
+          "min": 0
+        }
+      ],
+      "xAxis": {
+        "show": true
+      }
+    },
+    {
+      "id": 3,
+      "title": "DynamoDB Successful Requests",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      },
+      "targets": [
+        {
+          "region": "${region}",
+          "queryMode": "Metrics",
+          "namespace": "AWS/DynamoDB",
+          "metricName": "SuccessfulRequestLatency",
+          "dimensions": {
+            "TableName": "${dynamodb_table}"
+          },
+          "statistic": "Average",
+          "refId": "A",
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "cloudwatch"
+          }
+        }
+      ],
+      "yAxes": [
+        {
+          "label": "Latency (ms)",
+          "min": 0
+        }
+      ],
+      "xAxis": {
+        "show": true
+      }
+    },
+    {
+      "id": 4,
+      "title": "DynamoDB System Errors",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 8
+      },
+      "targets": [
+        {
+          "region": "${region}",
+          "queryMode": "Metrics",
+          "namespace": "AWS/DynamoDB",
+          "metricName": "SystemErrors",
+          "dimensions": {
+            "TableName": "${dynamodb_table}"
+          },
+          "statistic": "Sum",
+          "refId": "A",
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "cloudwatch"
+          }
+        }
+      ],
+      "yAxes": [
+        {
+          "label": "System Errors",
+          "min": 0
+        }
+      ],
+      "xAxis": {
+        "show": true
+      }
+    }
+  ]
+}

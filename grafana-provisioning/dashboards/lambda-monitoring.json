@@ -1,0 +1,281 @@
+{
+  "id": null,
+  "title": "AWS Lambda Monitoring",
+  "tags": ["lambda", "aws", "monitoring"],
+  "timezone": "browser",
+  "refresh": "30s",
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Lambda Invocations",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "targets": [
+        {
+          "region": "${region}",
+          "queryMode": "Metrics",
+          "namespace": "AWS/Lambda",
+          "metricName": "Invocations",
+          "dimensions": {
+            "FunctionName": "${secrets_function}"
+          },
+          "statistic": "Sum",
+          "refId": "A",
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "cloudwatch"
+          }
+        },
+        {
+          "region": "${region}",
+          "queryMode": "Metrics",
+          "namespace": "AWS/Lambda",
+          "metricName": "Invocations",
+          "dimensions": {
+            "FunctionName": "${acknowledge_function}"
+          },
+          "statistic": "Sum",
+          "refId": "B",
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "cloudwatch"
+          }
+        },
+        {
+          "region": "${region}",
+          "queryMode": "Metrics",
+          "namespace": "AWS/Lambda",
+          "metricName": "Invocations",
+          "dimensions": {
+            "FunctionName": "${qrcode_function}"
+          },
+          "statistic": "Sum",
+          "refId": "C",
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "cloudwatch"
+          }
+        }
+      ],
+      "yAxes": [
+        {
+          "label": "Invocations",
+          "min": 0
+        }
+      ],
+      "xAxis": {
+        "show": true
+      }
+    },
+    {
+      "id": 2,
+      "title": "Lambda Errors",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
+      "targets": [
+        {
+          "region": "${region}",
+          "queryMode": "Metrics",
+          "namespace": "AWS/Lambda",
+          "metricName": "Errors",
+          "dimensions": {
+            "FunctionName": "${secrets_function}"
+          },
+          "statistic": "Sum",
+          "refId": "A",
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "cloudwatch"
+          }
+        },
+        {
+          "region": "${region}",
+          "queryMode": "Metrics",
+          "namespace": "AWS/Lambda",
+          "metricName": "Errors",
+          "dimensions": {
+            "FunctionName": "${acknowledge_function}"
+          },
+          "statistic": "Sum",
+          "refId": "B",
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "cloudwatch"
+          }
+        },
+        {
+          "region": "${region}",
+          "queryMode": "Metrics",
+          "namespace": "AWS/Lambda",
+          "metricName": "Errors",
+          "dimensions": {
+            "FunctionName": "${qrcode_function}"
+          },
+          "statistic": "Sum",
+          "refId": "C",
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "cloudwatch"
+          }
+        }
+      ],
+      "yAxes": [
+        {
+          "label": "Errors",
+          "min": 0
+        }
+      ],
+      "xAxis": {
+        "show": true
+      }
+    },
+    {
+      "id": 3,
+      "title": "Lambda Duration",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      },
+      "targets": [
+        {
+          "region": "${region}",
+          "queryMode": "Metrics",
+          "namespace": "AWS/Lambda",
+          "metricName": "Duration",
+          "dimensions": {
+            "FunctionName": "${secrets_function}"
+          },
+          "statistic": "Average",
+          "refId": "A",
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "cloudwatch"
+          }
+        },
+        {
+          "region": "${region}",
+          "queryMode": "Metrics",
+          "namespace": "AWS/Lambda",
+          "metricName": "Duration",
+          "dimensions": {
+            "FunctionName": "${acknowledge_function}"
+          },
+          "statistic": "Average",
+          "refId": "B",
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "cloudwatch"
+          }
+        },
+        {
+          "region": "${region}",
+          "queryMode": "Metrics",
+          "namespace": "AWS/Lambda",
+          "metricName": "Duration",
+          "dimensions": {
+            "FunctionName": "${qrcode_function}"
+          },
+          "statistic": "Average",
+          "refId": "C",
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "cloudwatch"
+          }
+        }
+      ],
+      "yAxes": [
+        {
+          "label": "Duration (ms)",
+          "min": 0
+        }
+      ],
+      "xAxis": {
+        "show": true
+      }
+    },
+    {
+      "id": 4,
+      "title": "Lambda Throttles",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 8
+      },
+      "targets": [
+        {
+          "region": "${region}",
+          "queryMode": "Metrics",
+          "namespace": "AWS/Lambda",
+          "metricName": "Throttles",
+          "dimensions": {
+            "FunctionName": "${secrets_function}"
+          },
+          "statistic": "Sum",
+          "refId": "A",
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "cloudwatch"
+          }
+        },
+        {
+          "region": "${region}",
+          "queryMode": "Metrics",
+          "namespace": "AWS/Lambda",
+          "metricName": "Throttles",
+          "dimensions": {
+            "FunctionName": "${acknowledge_function}"
+          },
+          "statistic": "Sum",
+          "refId": "B",
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "cloudwatch"
+          }
+        },
+        {
+          "region": "${region}",
+          "queryMode": "Metrics",
+          "namespace": "AWS/Lambda",
+          "metricName": "Throttles",
+          "dimensions": {
+            "FunctionName": "${qrcode_function}"
+          },
+          "statistic": "Sum",
+          "refId": "C",
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "cloudwatch"
+          }
+        }
+      ],
+      "yAxes": [
+        {
+          "label": "Throttles",
+          "min": 0
+        }
+      ],
+      "xAxis": {
+        "show": true
+      }
+    }
+  ]
+}

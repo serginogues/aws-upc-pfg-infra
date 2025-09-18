@@ -8,8 +8,8 @@ resource "aws_lambda_function" "secrets_function" {
   timeout       = 30
   architectures = ["x86_64"]
 
-  s3_bucket     = "aws-upc-pfg-marc10010-lambda-bucket"
-  s3_key        = "aws-upc-pfg-marc10010-secrets.zip"
+  s3_bucket     = "aws-upc-pfg-lambda-bucket-marc10010"
+  s3_key        = "aws-upc-pfg-secrets.zip"
   # s3_object_version   = data.terraform_remote_state.aws_upc_pfg_tfstate.outputs.secrets_function_s3_object_version
 
   environment {
@@ -34,8 +34,8 @@ resource "aws_lambda_function" "acknowledge_function" {
   timeout       = 30
   architectures = ["x86_64"]
 
-  s3_bucket     = "aws-upc-pfg-marc10010-lambda-bucket"
-  s3_key        = "aws-upc-pfg-marc10010-acknowledge.zip"
+  s3_bucket     = "aws-upc-pfg-lambda-bucket-marc10010"
+  s3_key        = "aws-upc-pfg-acknowledge.zip"
   # s3_object_version   = data.terraform_remote_state.aws_upc_pfg_tfstate.outputs.acknowledge_function_s3_object_version
 
   environment {
@@ -60,8 +60,8 @@ resource "aws_lambda_function" "qrcode_generator_function" {
   timeout       = 30
   architectures = ["x86_64"]
 
-  s3_bucket     = "aws-upc-pfg-marc10010-lambda-bucket"
-  s3_key        = "aws-upc-pfg-marc10010-qrcode-generator.zip"
+  s3_bucket     = "aws-upc-pfg-lambda-bucket-marc10010"
+  s3_key        = "aws-upc-pfg-qrcode-generator.zip"
   # s3_object_version   = data.terraform_remote_state.aws_upc_pfg_tfstate.outputs.qrcode_generator_function_s3_object_version
 
   environment {
@@ -80,16 +80,16 @@ resource "aws_lambda_function" "qrcode_generator_function" {
 # Auth Lambda
 resource "aws_lambda_function" "auth_lambda" {
   role = aws_iam_role.lambda_exec.arn
-  function_name = "${local.name_prefix}-auth_lambda"
+  function_name = "${local.name_prefix}-auth"
   handler = "index.handler"
   runtime = "nodejs22.x"
   memory_size = 512
   timeout = 30
   architectures = ["x86_64"]
 
-  s3_bucket     = data.terraform_remote_state.aws_upc_pfg_tfstate.outputs.lambda_s3_bucket
-  s3_key        = data.terraform_remote_state.aws_upc_pfg_tfstate.outputs.auth_function_s3_key
-  s3_object_version   = data.terraform_remote_state.aws_upc_pfg_tfstate.outputs.auth_function_s3_object_version
+  s3_bucket     = "aws-upc-pfg-lambda-bucket-marc10010"
+  s3_key        = "aws-upc-pfg-auth.zip"
+  # s3_object_version   = data.terraform_remote_state.aws_upc_pfg_tfstate.outputs.auth_function_s3_object_version
 
   environment {
     variables = {
@@ -100,25 +100,3 @@ resource "aws_lambda_function" "auth_lambda" {
   }
 }
 
-# Send QR with SNS topic
-resource "aws_lambda_function" "send_qrcode_upload_function" {
-  filename      = "dummyzip.zip"
-  role          = aws_iam_role.lambda_exec.arn
-  function_name = "${local.name_prefix}-send_qrcode_upload_function"
-  handler       = "index.handler"
-  runtime       = "nodejs22.x"
-  memory_size   = 512
-  timeout       = 30
-  architectures = ["x86_64"]
-
-#   s3_bucket     = data.terraform_remote_state.aws_upc_pfg_tfstate.outputs.lambda_s3_bucket
-#   s3_key        = data.terraform_remote_state.aws_upc_pfg_tfstate.outputs.send_qrcode_upload_function_s3_key
-#   s3_object_version   = data.terraform_remote_state.aws_upc_pfg_tfstate.outputs.send_qrcode_upload_function_s3_object_version
-
-  environment {
-    variables = {
-      USER_POOL_ID   = aws_cognito_user_pool.secrets_user_pool.id
-      SNS_TOPIC_ARN  = aws_sns_topic.qr_code_notification_topic.arn
-    }
-  }
-}

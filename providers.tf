@@ -14,9 +14,21 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 5.0"
     }
-    grafana = {
-      source  = "grafana/grafana"
-      version = "~> 2.0"
+    time = {
+      source  = "hashicorp/time"
+      version = "~> 0.9"
+    }
+    null = {
+      source  = "hashicorp/null"
+      version = "~> 3.2"
+    }
+    tls = {
+      source  = "hashicorp/tls"
+      version = "~> 4.0"
+    }
+    local = {
+      source  = "hashicorp/local"
+      version = "~> 2.4"
     }
   }
 }
@@ -25,10 +37,7 @@ provider "aws" {
   region = var.region
 }
 
-provider "grafana" {
-  url     = "http://${aws_instance.grafana.private_ip}:3000"
-  auth    = "admin:${var.grafana_admin_password}"
-}
+# Grafana provider - will be configured dynamically
 
 data "terraform_remote_state" "aws_upc_pfg_tfstate" {
   backend = "s3"

@@ -54,6 +54,7 @@ variable "grafana_admin_password" {
   sensitive   = true
 }
 
+
 # Note: allowed_cidr_blocks not used in private subnet deployment
 
 locals {
