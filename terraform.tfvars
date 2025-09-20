@@ -1,0 +1,5 @@
+account_name = "marc10010"
+environment = "dev"
+app-name = "aws-upc-pfg-infra"
+region = "us-east-1"
+grafana_admin_password = "admin123"

@@ -39,10 +39,15 @@ provider "aws" {
 
 # Grafana provider - will be configured dynamically
 
+locals {
+  # Read account name from environment variable, fallback to default
+  account_name = try(env("TF_VAR_account_name"), "marc10010")
+}
+
 data "terraform_remote_state" "aws_upc_pfg_tfstate" {
   backend = "s3"
   config = {
-    bucket = "aws-upc-pfg-tfstate-bucket-${var.account_name}"  # Producer project's state bucket
+    bucket = "aws-upc-pfg-tfstate-bucket-${local.account_name}"
     key    = "aws-upc-pfg-code/terraform.tfstate"
     region = "us-east-1"
   }

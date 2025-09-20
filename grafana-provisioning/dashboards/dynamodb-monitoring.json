@@ -1,6 +1,6 @@
 {
   "id": null,
-  "title": "AWS DynamoDB Monitoring",
+  "title": "DynamoDB Monitoring",
   "tags": ["dynamodb", "aws", "monitoring"],
   "timezone": "browser",
   "refresh": "30s",
@@ -21,29 +21,80 @@
       },
       "targets": [
         {
-          "region": "${region}",
-          "queryMode": "Metrics",
-          "namespace": "AWS/DynamoDB",
-          "metricName": "ConsumedReadCapacityUnits",
-          "dimensions": {
-            "TableName": "${dynamodb_table}"
-          },
-          "statistic": "Sum",
           "refId": "A",
           "datasource": {
             "type": "cloudwatch",
             "uid": "cloudwatch"
-          }
+          },
+          "namespace": "AWS/DynamoDB",
+          "metricName": "ConsumedReadCapacityUnits",
+          "dimensions": {
+            "TableName": "aws-upc-pfg-infra-dev-secrets"
+          },
+          "statistic": "Sum",
+          "period": "300"
         }
       ],
-      "yAxes": [
-        {
-          "label": "Read Capacity Units",
-          "min": 0
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "vis": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
         }
-      ],
-      "xAxis": {
-        "show": true
       }
     },
     {
@@ -58,104 +109,209 @@
       },
       "targets": [
         {
-          "region": "${region}",
-          "queryMode": "Metrics",
-          "namespace": "AWS/DynamoDB",
-          "metricName": "ConsumedWriteCapacityUnits",
-          "dimensions": {
-            "TableName": "${dynamodb_table}"
-          },
-          "statistic": "Sum",
           "refId": "A",
           "datasource": {
             "type": "cloudwatch",
             "uid": "cloudwatch"
-          }
+          },
+          "namespace": "AWS/DynamoDB",
+          "metricName": "ConsumedWriteCapacityUnits",
+          "dimensions": {
+            "TableName": "aws-upc-pfg-infra-dev-secrets"
+          },
+          "statistic": "Sum",
+          "period": "300"
         }
       ],
-      "yAxes": [
-        {
-          "label": "Write Capacity Units",
-          "min": 0
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "vis": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
         }
-      ],
-      "xAxis": {
-        "show": true
       }
     },
     {
       "id": 3,
-      "title": "DynamoDB Successful Requests",
+      "title": "DynamoDB Item Count",
       "type": "timeseries",
       "gridPos": {
         "h": 8,
-        "w": 12,
+        "w": 24,
         "x": 0,
         "y": 8
       },
       "targets": [
         {
-          "region": "${region}",
-          "queryMode": "Metrics",
+          "refId": "A",
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "cloudwatch"
+          },
           "namespace": "AWS/DynamoDB",
-          "metricName": "SuccessfulRequestLatency",
+          "metricName": "ItemCount",
           "dimensions": {
-            "TableName": "${dynamodb_table}"
+            "TableName": "aws-upc-pfg-infra-dev-secrets"
           },
           "statistic": "Average",
-          "refId": "A",
-          "datasource": {
-            "type": "cloudwatch",
-            "uid": "cloudwatch"
-          }
+          "period": "300"
         }
       ],
-      "yAxes": [
-        {
-          "label": "Latency (ms)",
-          "min": 0
-        }
-      ],
-      "xAxis": {
-        "show": true
-      }
-    },
-    {
-      "id": 4,
-      "title": "DynamoDB System Errors",
-      "type": "timeseries",
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 8
-      },
-      "targets": [
-        {
-          "region": "${region}",
-          "queryMode": "Metrics",
-          "namespace": "AWS/DynamoDB",
-          "metricName": "SystemErrors",
-          "dimensions": {
-            "TableName": "${dynamodb_table}"
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
           },
-          "statistic": "Sum",
-          "refId": "A",
-          "datasource": {
-            "type": "cloudwatch",
-            "uid": "cloudwatch"
-          }
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "vis": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
         }
-      ],
-      "yAxes": [
-        {
-          "label": "System Errors",
-          "min": 0
-        }
-      ],
-      "xAxis": {
-        "show": true
       }
     }
-  ]
+  ],
+  "templating": {
+    "list": []
+  },
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "links": [],
+  "liveNow": false,
+  "schemaVersion": 30,
+  "style": "dark",
+  "tags": ["dynamodb", "aws", "monitoring"],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "DynamoDB Monitoring",
+  "uid": "dynamodb-monitoring",
+  "version": 0,
+  "weekStart": ""
 }

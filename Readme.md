@@ -1,32 +1,98 @@
-# S3 backend setup
+# AWS UPC PFG Infrastructure - Grafana Monitoring
 
-## Creating the S3 bucket to store the terraform state
-In order to use S3 as terraform state backend, we need to 
-create the S3 bucket and configure permissions (one-time setup).
+## 🏗️ Architecture Overview
 
-We need the S3 backend to access the code tfstate from the 
-infra project.
+This infrastructure deploys **Grafana in a private VPC** with secure access through a bastion host and CloudWatch integration.
 
-We name it as `aws-upc-pfg-infra-tfstate-bucket-{account-name}`
-Where `{account-name}` is the name of the account where the infra project is deployed.
-This must be replaced with the actual account name.
+### Key Components:
+- **VPC** with public and private subnets
+- **NAT Gateway** for internet access from private subnet
+- **Bastion Host** in public subnet for secure access
+- **Grafana** in private subnet (no public IP)
+- **CloudWatch Integration** for AWS metrics monitoring
+- **S3 Bucket** for Grafana dashboards and provisioning
+
+## 🚀 Quick Start
+
+### 1. Deploy Infrastructure
+```bash
+terraform init
+terraform apply
+```
+
+### 2. Access Grafana
+```bash
+./access-grafana.sh
+```
+Grafana will be available at: `http://localhost:3000`
+- **Username:** admin
+- **Password:** admin123 (or as defined in terraform.tfvars)
+
+### 3. Verify Architecture
+```bash
+./verify-architecture.sh
+```
+
+## 📁 Project Structure
+
+```
+├── bastion.tf              # Bastion host configuration
+├── grafana.tf              # Grafana VPC, security groups, and instance
+├── grafana-setup.sh        # Grafana installation script
+├── access-grafana.sh       # Script to access Grafana via bastion
+├── verify-architecture.sh  # Architecture verification script
+├── grafana-provisioning/   # Grafana dashboards and datasources
+│   ├── dashboards/
+│   └── datasources/
+└── terraform.tfvars        # Configuration variables
+```
+
+## 🔐 Security Features
+
+- **Private Subnet Deployment:** Grafana has no public IP
+- **Bastion Access Only:** SSH access only through bastion host
+- **IAM Permissions:** Least privilege access to CloudWatch
+- **Encrypted Storage:** All EBS volumes encrypted
+- **Security Groups:** Restrictive firewall rules
+
+## 📊 Monitoring
+
+Pre-configured dashboards for:
+- **AWS Lambda** metrics (invocations, errors, duration)
+- **DynamoDB** metrics (read/write capacity, item count)
+- **CloudWatch** logs integration
+
+## 🛠️ Configuration
+
+Edit `terraform.tfvars` to customize:
+- `account_name`: Your AWS account name
+- `environment`: Deployment environment (dev/prod)
+- `grafana_admin_password`: Grafana admin password
+- `grafana_instance_type`: EC2 instance type for Grafana
+
+## 🔧 Troubleshooting
+
+### Cannot connect to Grafana
+1. Verify bastion host is running: `terraform output bastion_public_ip`
+2. Check SSH key permissions: `chmod 600 bastion-key.pem`
+3. Test bastion connectivity: `ssh -i bastion-key.pem ec2-user@<bastion-ip>`
+
+### Grafana not loading dashboards
+1. Check CloudWatch datasource configuration
+2. Verify IAM permissions for Grafana user
+3. Check S3 bucket access for dashboard files
+
+## 📝 S3 Backend Setup
+
+The Terraform state is stored in S3. To set up the backend bucket:
 
 ```bash
-# Create the bucket (replace with your bucket name)
+# Create the bucket (replace with your account name)
 aws s3api create-bucket --bucket aws-upc-pfg-infra-tfstate-bucket-{account-name} --region us-east-1
 
-# Enable versioning (critical for state recovery)
+# Enable versioning
 aws s3api put-bucket-versioning --bucket aws-upc-pfg-infra-tfstate-bucket-{account-name} --versioning-configuration Status=Enabled
-```
-## Configuring the S3 bucket
 
-Now we need to define who can access the bucket and how. 
-That is, we need to apply a resource-based policy to the S3 bucket. Before this can be done, the update policy file must be updated
-to reflect the account name.
-
-```bash
+# Apply bucket policy
 aws s3api put-bucket-policy --bucket aws-upc-pfg-infra-tfstate-bucket-{account-name} --policy file://tfstate-s3-bucket-policy.json
 ```
-## Configuring the terraform project
-Finally, we need to configure the backend in the terraform project. It is not possible to define a backend bucket using a variable
-which means the name must be updated manually

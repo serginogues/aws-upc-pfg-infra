@@ -21,59 +21,80 @@
       },
       "targets": [
         {
-          "region": "${region}",
-          "queryMode": "Metrics",
-          "namespace": "AWS/Lambda",
-          "metricName": "Invocations",
-          "dimensions": {
-            "FunctionName": "${secrets_function}"
-          },
-          "statistic": "Sum",
           "refId": "A",
           "datasource": {
             "type": "cloudwatch",
             "uid": "cloudwatch"
-          }
-        },
-        {
-          "region": "${region}",
-          "queryMode": "Metrics",
+          },
           "namespace": "AWS/Lambda",
           "metricName": "Invocations",
           "dimensions": {
-            "FunctionName": "${acknowledge_function}"
+            "FunctionName": "aws-upc-pfg-infra-dev-secrets_function"
           },
           "statistic": "Sum",
-          "refId": "B",
-          "datasource": {
-            "type": "cloudwatch",
-            "uid": "cloudwatch"
-          }
+          "period": "300"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "vis": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
         },
-        {
-          "region": "${region}",
-          "queryMode": "Metrics",
-          "namespace": "AWS/Lambda",
-          "metricName": "Invocations",
-          "dimensions": {
-            "FunctionName": "${qrcode_function}"
-          },
-          "statistic": "Sum",
-          "refId": "C",
-          "datasource": {
-            "type": "cloudwatch",
-            "uid": "cloudwatch"
-          }
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
         }
-      ],
-      "yAxes": [
-        {
-          "label": "Invocations",
-          "min": 0
-        }
-      ],
-      "xAxis": {
-        "show": true
       }
     },
     {
@@ -88,59 +109,80 @@
       },
       "targets": [
         {
-          "region": "${region}",
-          "queryMode": "Metrics",
-          "namespace": "AWS/Lambda",
-          "metricName": "Errors",
-          "dimensions": {
-            "FunctionName": "${secrets_function}"
-          },
-          "statistic": "Sum",
           "refId": "A",
           "datasource": {
             "type": "cloudwatch",
             "uid": "cloudwatch"
-          }
-        },
-        {
-          "region": "${region}",
-          "queryMode": "Metrics",
+          },
           "namespace": "AWS/Lambda",
           "metricName": "Errors",
           "dimensions": {
-            "FunctionName": "${acknowledge_function}"
+            "FunctionName": "aws-upc-pfg-infra-dev-secrets_function"
           },
           "statistic": "Sum",
-          "refId": "B",
-          "datasource": {
-            "type": "cloudwatch",
-            "uid": "cloudwatch"
-          }
+          "period": "300"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "vis": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
         },
-        {
-          "region": "${region}",
-          "queryMode": "Metrics",
-          "namespace": "AWS/Lambda",
-          "metricName": "Errors",
-          "dimensions": {
-            "FunctionName": "${qrcode_function}"
-          },
-          "statistic": "Sum",
-          "refId": "C",
-          "datasource": {
-            "type": "cloudwatch",
-            "uid": "cloudwatch"
-          }
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
         }
-      ],
-      "yAxes": [
-        {
-          "label": "Errors",
-          "min": 0
-        }
-      ],
-      "xAxis": {
-        "show": true
       }
     },
     {
@@ -149,133 +191,127 @@
       "type": "timeseries",
       "gridPos": {
         "h": 8,
-        "w": 12,
+        "w": 24,
         "x": 0,
         "y": 8
       },
       "targets": [
         {
-          "region": "${region}",
-          "queryMode": "Metrics",
-          "namespace": "AWS/Lambda",
-          "metricName": "Duration",
-          "dimensions": {
-            "FunctionName": "${secrets_function}"
-          },
-          "statistic": "Average",
           "refId": "A",
           "datasource": {
             "type": "cloudwatch",
             "uid": "cloudwatch"
-          }
-        },
-        {
-          "region": "${region}",
-          "queryMode": "Metrics",
+          },
           "namespace": "AWS/Lambda",
           "metricName": "Duration",
           "dimensions": {
-            "FunctionName": "${acknowledge_function}"
+            "FunctionName": "aws-upc-pfg-infra-dev-secrets_function"
           },
           "statistic": "Average",
-          "refId": "B",
-          "datasource": {
-            "type": "cloudwatch",
-            "uid": "cloudwatch"
-          }
+          "period": "300"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "vis": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "ms"
         },
-        {
-          "region": "${region}",
-          "queryMode": "Metrics",
-          "namespace": "AWS/Lambda",
-          "metricName": "Duration",
-          "dimensions": {
-            "FunctionName": "${qrcode_function}"
-          },
-          "statistic": "Average",
-          "refId": "C",
-          "datasource": {
-            "type": "cloudwatch",
-            "uid": "cloudwatch"
-          }
-        }
-      ],
-      "yAxes": [
-        {
-          "label": "Duration (ms)",
-          "min": 0
-        }
-      ],
-      "xAxis": {
-        "show": true
-      }
-    },
-    {
-      "id": 4,
-      "title": "Lambda Throttles",
-      "type": "timeseries",
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 8
+        "overrides": []
       },
-      "targets": [
-        {
-          "region": "${region}",
-          "queryMode": "Metrics",
-          "namespace": "AWS/Lambda",
-          "metricName": "Throttles",
-          "dimensions": {
-            "FunctionName": "${secrets_function}"
-          },
-          "statistic": "Sum",
-          "refId": "A",
-          "datasource": {
-            "type": "cloudwatch",
-            "uid": "cloudwatch"
-          }
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
         },
-        {
-          "region": "${region}",
-          "queryMode": "Metrics",
-          "namespace": "AWS/Lambda",
-          "metricName": "Throttles",
-          "dimensions": {
-            "FunctionName": "${acknowledge_function}"
-          },
-          "statistic": "Sum",
-          "refId": "B",
-          "datasource": {
-            "type": "cloudwatch",
-            "uid": "cloudwatch"
-          }
-        },
-        {
-          "region": "${region}",
-          "queryMode": "Metrics",
-          "namespace": "AWS/Lambda",
-          "metricName": "Throttles",
-          "dimensions": {
-            "FunctionName": "${qrcode_function}"
-          },
-          "statistic": "Sum",
-          "refId": "C",
-          "datasource": {
-            "type": "cloudwatch",
-            "uid": "cloudwatch"
-          }
+        "tooltip": {
+          "mode": "single"
         }
-      ],
-      "yAxes": [
-        {
-          "label": "Throttles",
-          "min": 0
-        }
-      ],
-      "xAxis": {
-        "show": true
       }
     }
-  ]
+  ],
+  "templating": {
+    "list": []
+  },
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "links": [],
+  "liveNow": false,
+  "schemaVersion": 30,
+  "style": "dark",
+  "tags": ["lambda", "aws", "monitoring"],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "AWS Lambda Monitoring",
+  "uid": "lambda-monitoring",
+  "version": 0,
+  "weekStart": ""
 }
