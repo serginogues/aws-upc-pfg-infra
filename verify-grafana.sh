@@ -37,7 +37,7 @@ echo -e "${GREEN}✅ ECS Service: $SERVICE_NAME${NC}"
 
 # Test SSH connection to bastion
 echo -e "${BLUE}🔐 Probando conexión SSH al bastion...${NC}"
-if ssh -i bastion-key.pem -o ConnectTimeout=10 -o BatchMode=yes ec2-user@$BASTION_IP "echo 'SSH OK'" >/dev/null 2>&1; then
+if ssh -i bastion-key.pem -o ConnectTimeout=10 -o BatchMode=yes -o StrictHostKeyChecking=no ec2-user@$BASTION_IP "echo 'SSH OK'" >/dev/null 2>&1; then
     echo -e "${GREEN}✅ Conexión SSH al bastion exitosa${NC}"
 else
     echo -e "${RED}❌ Error: No se puede conectar por SSH al bastion${NC}"
@@ -78,7 +78,7 @@ fi
 echo -e "${GREEN}✅ Grafana IP: $GRAFANA_IP${NC}"
 
 # Test connectivity from bastion to Grafana
-if ssh -i bastion-key.pem ec2-user@$BASTION_IP "curl -s -o /dev/null -w '%{http_code}' http://$GRAFANA_IP:3000" | grep -q "200\|302"; then
+if ssh -i bastion-key.pem -o StrictHostKeyChecking=no ec2-user@$BASTION_IP "curl -s -o /dev/null -w '%{http_code}' http://$GRAFANA_IP:3000" | grep -q "200\|302"; then
     echo -e "${GREEN}✅ Grafana responde correctamente en $GRAFANA_IP:3000${NC}"
 else
     echo -e "${YELLOW}⚠️  Grafana no responde. Verificando estado...${NC}"
@@ -102,7 +102,7 @@ echo -e "${BLUE}🔗 Probando túnel SSH...${NC}"
 echo -e "${YELLOW}Iniciando túnel SSH en segundo plano...${NC}"
 
 # Start tunnel in background
-ssh -i bastion-key.pem -L 3000:$GRAFANA_IP:3000 -N ec2-user@$BASTION_IP &
+ssh -i bastion-key.pem -o StrictHostKeyChecking=no -L 3000:$GRAFANA_IP:3000 -N ec2-user@$BASTION_IP &
 TUNNEL_PID=$!
 
 # Wait a moment for tunnel to establish
