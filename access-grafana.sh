@@ -12,7 +12,7 @@ NC='\033[0m' # No Color
 
 # Default values
 LOCAL_PORT=3000
-GRAFANA_PORT=80
+GRAFANA_PORT=3000
 SSH_KEY_PATH="bastion-key.pem"
 
 # Help function
@@ -112,7 +112,7 @@ fi
 
 # Verificar conectividad al bastion
 echo -e "${BLUE}🔐 Probando conexión SSH al bastion...${NC}"
-if ! ssh -i "$SSH_KEY_PATH" -o ConnectTimeout=10 -o BatchMode=yes ec2-user@$BASTION_IP "echo 'SSH OK'" >/dev/null 2>&1; then
+if ! ssh -i "$SSH_KEY_PATH" -o ConnectTimeout=10 -o BatchMode=yes -o StrictHostKeyChecking=no ec2-user@$BASTION_IP "echo 'SSH OK'" >/dev/null 2>&1; then
     echo -e "${RED}❌ Error: No se puede conectar por SSH al bastion${NC}"
     echo -e "${YELLOW}💡 Verifica que la clave SSH sea correcta y el bastion esté funcionando${NC}"
     exit 1
@@ -122,10 +122,10 @@ echo -e "${GREEN}✅ Conexión SSH al bastion exitosa${NC}"
 
 # Crear túnel SSH
 echo -e "${BLUE}🔗 Creando túnel SSH...${NC}"
-echo -e "${YELLOW}Comando: ssh -i $SSH_KEY_PATH -L $LOCAL_PORT:$ALB_DNS:$GRAFANA_PORT -N ec2-user@$BASTION_IP${NC}"
+echo -e "${YELLOW}Comando: ssh -i $SSH_KEY_PATH -L $LOCAL_PORT:$GRAFANA_IP:$GRAFANA_PORT -N ec2-user@$BASTION_IP${NC}"
 
 # Iniciar túnel en segundo plano
-ssh -i "$SSH_KEY_PATH" -L "$LOCAL_PORT:$ALB_DNS:$GRAFANA_PORT" -N ec2-user@$BASTION_IP &
+ssh -i "$SSH_KEY_PATH" -o StrictHostKeyChecking=no -L "$LOCAL_PORT:$GRAFANA_IP:$GRAFANA_PORT" -N ec2-user@$BASTION_IP &
 SSH_PID=$!
 
 # Esperar un momento para que el túnel se establezca
@@ -154,7 +154,7 @@ echo -e "   Contraseña: $GRAFANA_ADMIN_PASSWORD"
 echo ""
 echo -e "${YELLOW}🔧 Información del túnel:${NC}"
 echo -e "   Puerto local: $LOCAL_PORT"
-echo -e "   ALB DNS: $ALB_DNS"
+echo -e "   Grafana IP: $GRAFANA_IP"
 echo -e "   Bastion IP: $BASTION_IP"
 echo -e "   PID SSH: $SSH_PID"
 echo ""

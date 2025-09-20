@@ -6,10 +6,22 @@ datasources:
     access: proxy
     url: ""
     jsonData:
-      authType: keys
-      defaultRegion: ${region}
-      accessKey: ${access_key}
-      secretKey: ${secret_key}
+      authType: default
+      defaultRegion: us-east-1
+      assumeRoleArn: "arn:aws:iam::389011575948:role/aws-upc-pfg-infra-dev-grafana-ec2-role"
+      externalId: ""
+      profile: ""
+      customMetricsNamespaces: ""
+      endpoint: ""
+      tsdbVersion: "default"
+      tsdbResolution: "1"
+      cacheTimeoutSeconds: 300
+      timeout: 60
+      sigV4Auth: true
+      sigV4AuthType: "default"
+      sigV4ExternalId: ""
+      sigV4Profile: ""
+      sigV4Region: "us-east-1"
     isDefault: true
     editable: true
     uid: cloudwatch

@@ -29,12 +29,10 @@
           "namespace": "AWS/DynamoDB",
           "metricName": "ConsumedReadCapacityUnits",
           "dimensions": {
-            "TableName": "$tableName"
+            "TableName": "aws-upc-pfg-infra-dev-secrets"
           },
           "statistic": "Sum",
-          "period": "300",
-          "region": "$region",
-          "accountId": "$accountId"
+          "period": "300"
         }
       ],
       "fieldConfig": {
@@ -119,12 +117,10 @@
           "namespace": "AWS/DynamoDB",
           "metricName": "ConsumedWriteCapacityUnits",
           "dimensions": {
-            "TableName": "$tableName"
+            "TableName": "aws-upc-pfg-infra-dev-secrets"
           },
           "statistic": "Sum",
-          "period": "300",
-          "region": "$region",
-          "accountId": "$accountId"
+          "period": "300"
         }
       ],
       "fieldConfig": {
@@ -212,9 +208,7 @@
             "TableName": "aws-upc-pfg-infra-dev-secrets"
           },
           "statistic": "Average",
-          "period": "300",
-          "region": "us-east-1",
-          "accountId": "389011575948"
+          "period": "300"
         }
       ],
       "fieldConfig": {
@@ -281,47 +275,7 @@
     }
   ],
   "templating": {
-    "list": [
-      {
-        "name": "region",
-        "type": "textbox",
-        "label": "AWS Region",
-        "query": "us-east-1",
-        "current": {
-          "selected": false,
-          "text": "us-east-1",
-          "value": "us-east-1"
-        },
-        "hide": 0,
-        "skipUrlSync": false
-      },
-      {
-        "name": "accountId",
-        "type": "textbox",
-        "label": "AWS Account ID",
-        "query": "389011575948",
-        "current": {
-          "selected": false,
-          "text": "389011575948",
-          "value": "389011575948"
-        },
-        "hide": 0,
-        "skipUrlSync": false
-      },
-      {
-        "name": "tableName",
-        "type": "textbox",
-        "label": "DynamoDB Table Name",
-        "query": "aws-upc-pfg-infra-dev-secrets",
-        "current": {
-          "selected": false,
-          "text": "aws-upc-pfg-infra-dev-secrets",
-          "value": "aws-upc-pfg-infra-dev-secrets"
-        },
-        "hide": 0,
-        "skipUrlSync": false
-      }
-    ]
+    "list": []
   },
   "annotations": {
     "list": [

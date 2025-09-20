@@ -29,10 +29,12 @@
           "namespace": "AWS/Lambda",
           "metricName": "Invocations",
           "dimensions": {
-            "FunctionName": "aws-upc-pfg-infra-dev-secrets_function"
+            "FunctionName": "$functionName"
           },
           "statistic": "Sum",
-          "period": "300"
+          "period": "300",
+          "region": "$region",
+          "accountId": "$accountId"
         }
       ],
       "fieldConfig": {
@@ -117,10 +119,12 @@
           "namespace": "AWS/Lambda",
           "metricName": "Errors",
           "dimensions": {
-            "FunctionName": "aws-upc-pfg-infra-dev-secrets_function"
+            "FunctionName": "$functionName"
           },
           "statistic": "Sum",
-          "period": "300"
+          "period": "300",
+          "region": "$region",
+          "accountId": "$accountId"
         }
       ],
       "fieldConfig": {
@@ -208,7 +212,9 @@
             "FunctionName": "aws-upc-pfg-infra-dev-secrets_function"
           },
           "statistic": "Average",
-          "period": "300"
+          "period": "300",
+          "region": "us-east-1",
+          "accountId": "389011575948"
         }
       ],
       "fieldConfig": {
@@ -275,7 +281,47 @@
     }
   ],
   "templating": {
-    "list": []
+    "list": [
+      {
+        "name": "region",
+        "type": "textbox",
+        "label": "AWS Region",
+        "query": "us-east-1",
+        "current": {
+          "selected": false,
+          "text": "us-east-1",
+          "value": "us-east-1"
+        },
+        "hide": 0,
+        "skipUrlSync": false
+      },
+      {
+        "name": "accountId",
+        "type": "textbox",
+        "label": "AWS Account ID",
+        "query": "389011575948",
+        "current": {
+          "selected": false,
+          "text": "389011575948",
+          "value": "389011575948"
+        },
+        "hide": 0,
+        "skipUrlSync": false
+      },
+      {
+        "name": "functionName",
+        "type": "textbox",
+        "label": "Lambda Function Name",
+        "query": "aws-upc-pfg-infra-dev-secrets_function",
+        "current": {
+          "selected": false,
+          "text": "aws-upc-pfg-infra-dev-secrets_function",
+          "value": "aws-upc-pfg-infra-dev-secrets_function"
+        },
+        "hide": 0,
+        "skipUrlSync": false
+      }
+    ]
   },
   "annotations": {
     "list": [

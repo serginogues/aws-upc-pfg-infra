@@ -60,6 +60,27 @@ resource "aws_ecs_task_definition" "grafana" {
         {
           name  = "GF_SERVER_ROOT_URL"
           value = "http://localhost:3000"
+        },
+        {
+          name  = "GF_PATHS_PROVISIONING"
+          value = "/etc/grafana/provisioning"
+        },
+        {
+          name  = "GF_DATABASE_TYPE"
+          value = "sqlite3"
+        },
+        {
+          name  = "GF_DATABASE_PATH"
+          value = "/var/lib/grafana/grafana.db"
+        }
+      ]
+
+      # Mount provisioning files
+      mountPoints = [
+        {
+          sourceVolume  = "grafana-provisioning"
+          containerPath = "/etc/grafana/provisioning"
+          readOnly      = false
         }
       ]
 
@@ -91,8 +112,42 @@ resource "aws_ecs_task_definition" "grafana" {
 
       # Essential container
       essential = true
+    },
+    {
+      name  = "grafana-provisioner"
+      image = "public.ecr.aws/aws-cli/aws-cli:latest"
+      
+      command = [
+        "sh",
+        "-c",
+        "echo 'Starting Grafana provisioner...' && sleep 10 && mkdir -p /shared/provisioning/dashboards /shared/provisioning/datasources && aws --region us-east-1 s3api get-object --bucket aws-upc-pfg-infra-dev-grafana-provisioning-875gkede --key dashboards/lambda-monitoring.json /shared/provisioning/dashboards/lambda-monitoring.json && aws --region us-east-1 s3api get-object --bucket aws-upc-pfg-infra-dev-grafana-provisioning-875gkede --key dashboards/dynamodb-monitoring.json /shared/provisioning/dashboards/dynamodb-monitoring.json && aws --region us-east-1 s3api get-object --bucket aws-upc-pfg-infra-dev-grafana-provisioning-875gkede --key dashboards/dashboards.yml /shared/provisioning/dashboards/dashboards.yml && aws --region us-east-1 s3api get-object --bucket aws-upc-pfg-infra-dev-grafana-provisioning-875gkede --key datasources/cloudwatch.yml /shared/provisioning/datasources/cloudwatch.yml && chown -R 472:472 /shared/provisioning && echo 'Provisioning files downloaded successfully!' && while true; do sleep 3600; done"
+      ]
+      
+      mountPoints = [
+        {
+          sourceVolume  = "grafana-provisioning"
+          containerPath = "/shared"
+          readOnly      = false
+        }
+      ]
+      
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          awslogs-group         = "/ecs/aws-upc-pfg-infra-dev-grafana"
+          awslogs-region        = "us-east-1"
+          awslogs-stream-prefix = "ecs-provisioner"
+        }
+      }
+      
+      essential = false
     }
   ])
+
+  # Volume definitions
+  volume {
+    name = "grafana-provisioning"
+  }
 
   tags = {
     Name        = "${local.name_prefix}-grafana-task"

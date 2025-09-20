@@ -1,0 +1,92 @@
+{
+  "family": "aws-upc-pfg-infra-dev-grafana",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "512",
+  "memory": "1024",
+  "executionRoleArn": "arn:aws:iam::389011575948:role/aws-upc-pfg-infra-dev-ecs-execution-role",
+  "taskRoleArn": "arn:aws:iam::389011575948:role/aws-upc-pfg-infra-dev-ecs-task-role",
+  "containerDefinitions": [
+    {
+      "name": "grafana",
+      "image": "grafana/grafana:latest",
+      "portMappings": [
+        {
+          "containerPort": 3000,
+          "hostPort": 3000,
+          "protocol": "tcp"
+        }
+      ],
+      "command": [
+        "sh",
+        "-c",
+        "echo 'Starting Grafana with dashboard setup...' && apk add --no-cache curl unzip && curl 'https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip' -o 'awscliv2.zip' && unzip awscliv2.zip && ./aws/install && mkdir -p /etc/grafana/provisioning/dashboards /etc/grafana/provisioning/datasources && aws s3 cp s3://aws-upc-pfg-infra-dev-grafana-provisioning-875gkede/dashboards/lambda-monitoring.json /etc/grafana/provisioning/dashboards/ --region us-east-1 && aws s3 cp s3://aws-upc-pfg-infra-dev-grafana-provisioning-875gkede/dashboards/dynamodb-monitoring.json /etc/grafana/provisioning/dashboards/ --region us-east-1 && aws s3 cp s3://aws-upc-pfg-infra-dev-grafana-provisioning-875gkede/dashboards/dashboards.yml /etc/grafana/provisioning/dashboards/ --region us-east-1 && aws s3 cp s3://aws-upc-pfg-infra-dev-grafana-provisioning-875gkede/datasources/cloudwatch.yml /etc/grafana/provisioning/datasources/ --region us-east-1 && chown -R 472:472 /etc/grafana/provisioning && echo 'Dashboards setup completed!' && /run.sh"
+      ],
+      "environment": [
+        {
+          "name": "GF_SECURITY_ADMIN_PASSWORD",
+          "value": "admin"
+        },
+        {
+          "name": "GF_INSTALL_PLUGINS",
+          "value": "grafana-piechart-panel,grafana-clock-panel"
+        },
+        {
+          "name": "GF_SECURITY_ALLOW_EMBEDDING",
+          "value": "true"
+        },
+        {
+          "name": "GF_AUTH_ANONYMOUS_ENABLED",
+          "value": "false"
+        },
+        {
+          "name": "GF_SERVER_ROOT_URL",
+          "value": "http://localhost:3000"
+        },
+        {
+          "name": "GF_PATHS_PROVISIONING",
+          "value": "/etc/grafana/provisioning"
+        },
+        {
+          "name": "GF_DATABASE_TYPE",
+          "value": "sqlite3"
+        },
+        {
+          "name": "GF_DATABASE_PATH",
+          "value": "/var/lib/grafana/grafana.db"
+        }
+      ],
+      "mountPoints": [
+        {
+          "sourceVolume": "grafana-provisioning",
+          "containerPath": "/etc/grafana/provisioning",
+          "readOnly": false
+        }
+      ],
+      "healthCheck": {
+        "command": [
+          "CMD-SHELL",
+          "curl -f http://localhost:3000/api/health || exit 1"
+        ],
+        "interval": 30,
+        "timeout": 5,
+        "retries": 3,
+        "startPeriod": 60
+      },
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/aws-upc-pfg-infra-dev-grafana",
+          "awslogs-region": "us-east-1",
+          "awslogs-stream-prefix": "ecs"
+        }
+      },
+      "essential": true
+    }
+  ],
+  "volumes": [
+    {
+      "name": "grafana-provisioning"
+    }
+  ]
+}

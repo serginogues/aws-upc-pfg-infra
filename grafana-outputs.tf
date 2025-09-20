@@ -19,6 +19,26 @@ output "grafana_service_discovery_namespace" {
   value       = aws_service_discovery_private_dns_namespace.grafana.name
 }
 
+output "grafana_provisioning_bucket_name" {
+  description = "Name of the S3 bucket for Grafana provisioning files"
+  value       = aws_s3_bucket.grafana_provisioning.bucket
+}
+
+output "grafana_ec2_public_ip" {
+  description = "Public IP address of the Grafana EC2 instance"
+  value       = aws_eip.grafana.public_ip
+}
+
+output "grafana_ec2_access_url" {
+  description = "URL to access Grafana"
+  value       = "http://${aws_eip.grafana.public_ip}:3000"
+}
+
+output "grafana_ec2_ssh_command" {
+  description = "SSH command to connect to Grafana EC2 instance"
+  value       = "ssh -i bastion-key.pem ec2-user@${aws_eip.grafana.public_ip}"
+}
+
 output "grafana_access_info" {
   description = "Grafana access information"
   sensitive   = true

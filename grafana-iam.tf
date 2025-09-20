@@ -130,3 +130,38 @@ resource "aws_iam_role_policy_attachment" "ecs_task_s3" {
   role       = aws_iam_role.ecs_task_role.name
   policy_arn = aws_iam_policy.grafana_s3.arn
 }
+
+# S3 policy for Grafana provisioning files
+resource "aws_iam_policy" "grafana_provisioning_s3" {
+  name        = "${local.name_prefix}-grafana-provisioning-s3"
+  description = "Policy for Grafana to access S3 provisioning files"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:GetObject",
+          "s3:ListBucket"
+        ]
+        Resource = [
+          aws_s3_bucket.grafana_provisioning.arn,
+          "${aws_s3_bucket.grafana_provisioning.arn}/*"
+        ]
+      }
+    ]
+  })
+
+  tags = {
+    Name        = "${local.name_prefix}-grafana-provisioning-s3-policy"
+    Environment = var.environment
+    Project     = var.project_name
+  }
+}
+
+# Attach S3 provisioning permissions
+resource "aws_iam_role_policy_attachment" "ecs_task_provisioning_s3" {
+  role       = aws_iam_role.ecs_task_role.name
+  policy_arn = aws_iam_policy.grafana_provisioning_s3.arn
+}

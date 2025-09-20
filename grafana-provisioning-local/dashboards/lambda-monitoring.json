@@ -1,7 +1,7 @@
 {
   "id": null,
-  "title": "DynamoDB Monitoring",
-  "tags": ["dynamodb", "aws", "monitoring"],
+  "title": "AWS Lambda Monitoring",
+  "tags": ["lambda", "aws", "monitoring"],
   "timezone": "browser",
   "refresh": "30s",
   "time": {
@@ -11,7 +11,7 @@
   "panels": [
     {
       "id": 1,
-      "title": "DynamoDB Read Capacity",
+      "title": "Lambda Invocations",
       "type": "timeseries",
       "gridPos": {
         "h": 8,
@@ -26,15 +26,13 @@
             "type": "cloudwatch",
             "uid": "cloudwatch"
           },
-          "namespace": "AWS/DynamoDB",
-          "metricName": "ConsumedReadCapacityUnits",
+          "namespace": "AWS/Lambda",
+          "metricName": "Invocations",
           "dimensions": {
-            "TableName": "$tableName"
+            "FunctionName": "aws-upc-pfg-infra-dev-secrets_function"
           },
           "statistic": "Sum",
-          "period": "300",
-          "region": "$region",
-          "accountId": "$accountId"
+          "period": "300"
         }
       ],
       "fieldConfig": {
@@ -101,7 +99,7 @@
     },
     {
       "id": 2,
-      "title": "DynamoDB Write Capacity",
+      "title": "Lambda Errors",
       "type": "timeseries",
       "gridPos": {
         "h": 8,
@@ -116,15 +114,13 @@
             "type": "cloudwatch",
             "uid": "cloudwatch"
           },
-          "namespace": "AWS/DynamoDB",
-          "metricName": "ConsumedWriteCapacityUnits",
+          "namespace": "AWS/Lambda",
+          "metricName": "Errors",
           "dimensions": {
-            "TableName": "$tableName"
+            "FunctionName": "aws-upc-pfg-infra-dev-secrets_function"
           },
           "statistic": "Sum",
-          "period": "300",
-          "region": "$region",
-          "accountId": "$accountId"
+          "period": "300"
         }
       ],
       "fieldConfig": {
@@ -191,7 +187,7 @@
     },
     {
       "id": 3,
-      "title": "DynamoDB Item Count",
+      "title": "Lambda Duration",
       "type": "timeseries",
       "gridPos": {
         "h": 8,
@@ -206,15 +202,13 @@
             "type": "cloudwatch",
             "uid": "cloudwatch"
           },
-          "namespace": "AWS/DynamoDB",
-          "metricName": "ItemCount",
+          "namespace": "AWS/Lambda",
+          "metricName": "Duration",
           "dimensions": {
-            "TableName": "aws-upc-pfg-infra-dev-secrets"
+            "FunctionName": "aws-upc-pfg-infra-dev-secrets_function"
           },
           "statistic": "Average",
-          "period": "300",
-          "region": "us-east-1",
-          "accountId": "389011575948"
+          "period": "300"
         }
       ],
       "fieldConfig": {
@@ -264,7 +258,7 @@
               }
             ]
           },
-          "unit": "short"
+          "unit": "ms"
         },
         "overrides": []
       },
@@ -281,47 +275,7 @@
     }
   ],
   "templating": {
-    "list": [
-      {
-        "name": "region",
-        "type": "textbox",
-        "label": "AWS Region",
-        "query": "us-east-1",
-        "current": {
-          "selected": false,
-          "text": "us-east-1",
-          "value": "us-east-1"
-        },
-        "hide": 0,
-        "skipUrlSync": false
-      },
-      {
-        "name": "accountId",
-        "type": "textbox",
-        "label": "AWS Account ID",
-        "query": "389011575948",
-        "current": {
-          "selected": false,
-          "text": "389011575948",
-          "value": "389011575948"
-        },
-        "hide": 0,
-        "skipUrlSync": false
-      },
-      {
-        "name": "tableName",
-        "type": "textbox",
-        "label": "DynamoDB Table Name",
-        "query": "aws-upc-pfg-infra-dev-secrets",
-        "current": {
-          "selected": false,
-          "text": "aws-upc-pfg-infra-dev-secrets",
-          "value": "aws-upc-pfg-infra-dev-secrets"
-        },
-        "hide": 0,
-        "skipUrlSync": false
-      }
-    ]
+    "list": []
   },
   "annotations": {
     "list": [
@@ -346,7 +300,7 @@
   "liveNow": false,
   "schemaVersion": 30,
   "style": "dark",
-  "tags": ["dynamodb", "aws", "monitoring"],
+  "tags": ["lambda", "aws", "monitoring"],
   "templating": {
     "list": []
   },
@@ -356,8 +310,8 @@
   },
   "timepicker": {},
   "timezone": "browser",
-  "title": "DynamoDB Monitoring",
-  "uid": "dynamodb-monitoring",
+  "title": "AWS Lambda Monitoring",
+  "uid": "lambda-monitoring",
   "version": 0,
   "weekStart": ""
 }
