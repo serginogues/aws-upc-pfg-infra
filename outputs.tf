@@ -18,10 +18,3 @@ output "qr_code_queue_url" {
 output "api_gateway_url" {
   value = "https://${aws_api_gateway_rest_api.secrets_api.id}.execute-api.${var.region}.amazonaws.com/${var.environment}"
 }
-
-output "grafana_dashboards_bucket_name" {
-  value = aws_s3_bucket.grafana-dashboards-bucket.bucket
-  description = "S3 bucket name for Grafana dashboards"
-}
-
-

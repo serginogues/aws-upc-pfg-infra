@@ -1,61 +1,24 @@
-# ECS Task Execution Role with minimal permissions
-resource "aws_iam_role" "ecs_execution_role" {
-  name = "${local.name_prefix}-ecs-execution-role"
+# =============================================================================
+# IAM USER FOR GRAFANA
+# =============================================================================
 
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Principal = {
-          Service = "ecs-tasks.amazonaws.com"
-        }
-      }
-    ]
-  })
+# IAM User for Grafana
+resource "aws_iam_user" "grafana_user" {
+  name = "${local.name_prefix}-grafana-user"
+  path = "/"
 
   tags = {
-    Name        = "${local.name_prefix}-ecs-execution-role"
+    Name        = "${local.name_prefix}-grafana-user"
     Environment = var.environment
-    Project     = var.project_name
+    Project     = var.app-name
+    Service     = "monitoring"
   }
 }
 
-# Attach AWS managed policy for ECS task execution
-resource "aws_iam_role_policy_attachment" "ecs_execution_role_policy" {
-  role       = aws_iam_role.ecs_execution_role.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
-}
-
-# ECS Task Role with specific permissions
-resource "aws_iam_role" "ecs_task_role" {
-  name = "${local.name_prefix}-ecs-task-role"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Principal = {
-          Service = "ecs-tasks.amazonaws.com"
-        }
-      }
-    ]
-  })
-
-  tags = {
-    Name        = "${local.name_prefix}-ecs-task-role"
-    Environment = var.environment
-    Project     = var.project_name
-  }
-}
-
-# Custom policy for Grafana CloudWatch access
-resource "aws_iam_policy" "grafana_ecs_cloudwatch" {
-  name        = "${local.name_prefix}-grafana-ecs-cloudwatch"
-  description = "Policy for Grafana ECS task to access CloudWatch"
+# IAM Policy for Grafana CloudWatch access
+resource "aws_iam_policy" "grafana_user_cloudwatch" {
+  name        = "${local.name_prefix}-grafana-user-cloudwatch"
+  description = "Policy for Grafana user to access CloudWatch metrics and logs"
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -66,13 +29,7 @@ resource "aws_iam_policy" "grafana_ecs_cloudwatch" {
           "cloudwatch:GetMetricStatistics",
           "cloudwatch:ListMetrics",
           "cloudwatch:GetMetricData",
-          "cloudwatch:GetInsightRuleReport"
-        ]
-        Resource = "*"
-      },
-      {
-        Effect = "Allow"
-        Action = [
+          "cloudwatch:DescribeAlarms",
           "logs:DescribeLogGroups",
           "logs:DescribeLogStreams",
           "logs:GetLogEvents",
@@ -84,84 +41,44 @@ resource "aws_iam_policy" "grafana_ecs_cloudwatch" {
   })
 
   tags = {
-    Name        = "${local.name_prefix}-grafana-ecs-cloudwatch-policy"
+    Name        = "${local.name_prefix}-grafana-user-cloudwatch-policy"
     Environment = var.environment
-    Project     = var.project_name
+    Project     = var.app-name
   }
 }
 
-# Attach CloudWatch permissions
-resource "aws_iam_role_policy_attachment" "ecs_task_cloudwatch" {
-  role       = aws_iam_role.ecs_task_role.name
-  policy_arn = aws_iam_policy.grafana_ecs_cloudwatch.arn
+# Attach policy to user
+resource "aws_iam_user_policy_attachment" "grafana_user_cloudwatch" {
+  user       = aws_iam_user.grafana_user.name
+  policy_arn = aws_iam_policy.grafana_user_cloudwatch.arn
 }
 
-# S3 policy for Grafana dashboards
-resource "aws_iam_policy" "grafana_s3" {
-  name        = "${local.name_prefix}-grafana-s3"
-  description = "Policy for Grafana to access S3 dashboards"
+# Create access keys for Grafana user
+resource "aws_iam_access_key" "grafana_user" {
+  user = aws_iam_user.grafana_user.name
+}
 
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Action = [
-          "s3:GetObject",
-          "s3:ListBucket"
-        ]
-        Resource = [
-          "arn:aws:s3:::${aws_s3_bucket.grafana-dashboards-bucket.bucket}",
-          "arn:aws:s3:::${aws_s3_bucket.grafana-dashboards-bucket.bucket}/*"
-        ]
-      }
-    ]
-  })
+# =============================================================================
+# OUTPUTS
+# =============================================================================
 
-  tags = {
-    Name        = "${local.name_prefix}-grafana-s3-policy"
-    Environment = var.environment
-    Project     = var.project_name
+output "grafana_user_access_key_id" {
+  description = "Access Key ID for Grafana user"
+  value       = aws_iam_access_key.grafana_user.id
+  sensitive   = true
+}
+
+output "grafana_user_secret_access_key" {
+  description = "Secret Access Key for Grafana user"
+  value       = aws_iam_access_key.grafana_user.secret
+  sensitive   = true
+}
+
+output "grafana_user_credentials" {
+  description = "Grafana user credentials for datasource configuration"
+  value = {
+    access_key_id     = aws_iam_access_key.grafana_user.id
+    secret_access_key = aws_iam_access_key.grafana_user.secret
   }
-}
-
-# Attach S3 permissions for dashboards
-resource "aws_iam_role_policy_attachment" "ecs_task_s3" {
-  role       = aws_iam_role.ecs_task_role.name
-  policy_arn = aws_iam_policy.grafana_s3.arn
-}
-
-# S3 policy for Grafana provisioning files
-resource "aws_iam_policy" "grafana_provisioning_s3" {
-  name        = "${local.name_prefix}-grafana-provisioning-s3"
-  description = "Policy for Grafana to access S3 provisioning files"
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Action = [
-          "s3:GetObject",
-          "s3:ListBucket"
-        ]
-        Resource = [
-          aws_s3_bucket.grafana_provisioning.arn,
-          "${aws_s3_bucket.grafana_provisioning.arn}/*"
-        ]
-      }
-    ]
-  })
-
-  tags = {
-    Name        = "${local.name_prefix}-grafana-provisioning-s3-policy"
-    Environment = var.environment
-    Project     = var.project_name
-  }
-}
-
-# Attach S3 provisioning permissions
-resource "aws_iam_role_policy_attachment" "ecs_task_provisioning_s3" {
-  role       = aws_iam_role.ecs_task_role.name
-  policy_arn = aws_iam_policy.grafana_provisioning_s3.arn
+  sensitive = true
 }

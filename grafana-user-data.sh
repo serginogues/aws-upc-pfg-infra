@@ -1,10 +1,5 @@
 #!/bin/bash
 
-# Grafana EC2 User Data Script
-# This script installs and configures Grafana on Amazon Linux 2
-
-set -e
-
 # Update system
 yum update -y
 
@@ -14,59 +9,65 @@ systemctl start docker
 systemctl enable docker
 usermod -a -G docker ec2-user
 
-# Install AWS CLI v2
-curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-unzip awscliv2.zip
-./aws/install
+# Install Docker Compose
+curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+chmod +x /usr/local/bin/docker-compose
 
-# Install Grafana using Docker with AWS access
-docker run -d \
-  --name grafana \
-  --restart unless-stopped \
-  -p 3000:3000 \
-  -e GF_SECURITY_ADMIN_PASSWORD=${grafana_admin_password} \
-  -e GF_SECURITY_ALLOW_EMBEDDING=true \
-  -e GF_AUTH_ANONYMOUS_ENABLED=false \
-  -e GF_SERVER_ROOT_URL=http://localhost:3000 \
-  -e GF_PATHS_PROVISIONING=/etc/grafana/provisioning \
-  -e GF_DATABASE_TYPE=sqlite3 \
-  -e GF_DATABASE_PATH=/var/lib/grafana/grafana.db \
-  -e GF_INSTALL_PLUGINS=grafana-piechart-panel,grafana-clock-panel \
-  -e AWS_REGION=us-east-1 \
-  -e AWS_DEFAULT_REGION=us-east-1 \
-  -v grafana-data:/var/lib/grafana \
-  -v grafana-provisioning:/etc/grafana/provisioning \
-  --network host \
-  grafana/grafana:latest
+# Create Grafana directory
+mkdir -p /opt/grafana
+cd /opt/grafana
 
-# Wait for Grafana to start
-sleep 30
+# Create docker-compose.yml for Grafana
+cat > docker-compose.yml << 'EOF'
+version: '3.8'
 
-# Create provisioning directories
-docker exec grafana mkdir -p /etc/grafana/provisioning/dashboards
-docker exec grafana mkdir -p /etc/grafana/provisioning/datasources
+services:
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${grafana_admin_password}
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource,grafana-piechart-panel
+      - GF_AWS_ALLOWED_AUTH_PROVIDERS=default,keys,credentials
+      - GF_AWS_DEFAULT_REGION=${region}
+    volumes:
+      - grafana-storage:/var/lib/grafana
+      - ./provisioning:/etc/grafana/provisioning
+    networks:
+      - grafana-network
 
-# Download provisioning files from S3
-aws s3 cp s3://${s3_bucket_name}/dashboards/lambda-monitoring.json /tmp/lambda-monitoring.json --region us-east-1
-aws s3 cp s3://${s3_bucket_name}/dashboards/dynamodb-monitoring.json /tmp/dynamodb-monitoring.json --region us-east-1
-aws s3 cp s3://${s3_bucket_name}/dashboards/dashboards.yml /tmp/dashboards.yml --region us-east-1
-aws s3 cp s3://${s3_bucket_name}/datasources/cloudwatch.yml /tmp/cloudwatch.yml --region us-east-1
+volumes:
+  grafana-storage:
 
-# Copy files to Grafana container
-docker cp /tmp/lambda-monitoring.json grafana:/etc/grafana/provisioning/dashboards/
-docker cp /tmp/dynamodb-monitoring.json grafana:/etc/grafana/provisioning/dashboards/
-docker cp /tmp/dashboards.yml grafana:/etc/grafana/provisioning/dashboards/
-docker cp /tmp/cloudwatch.yml grafana:/etc/grafana/provisioning/datasources/
+networks:
+  grafana-network:
+    driver: bridge
+EOF
 
-# Set proper permissions
-docker exec grafana chown -R 472:472 /etc/grafana/provisioning
+# Create provisioning directory structure (for future use)
+mkdir -p provisioning/datasources
+mkdir -p provisioning/dashboards
 
-# Restart Grafana to apply changes
-docker restart grafana
+# Start Grafana with Docker Compose
+docker-compose up -d
 
-# Clean up
-rm -f /tmp/*.json /tmp/*.yml awscliv2.zip
-rm -rf ./aws
+# Wait for Grafana to start and be ready
+echo "Waiting for Grafana to be ready..."
+for i in {1..30}; do
+  if curl -s http://localhost:3000/api/health > /dev/null 2>&1; then
+    echo "Grafana is ready!"
+    break
+  fi
+  echo "Attempt $i/30: Grafana not ready yet, waiting..."
+  sleep 10
+done
 
 # Log completion
-echo "Grafana installation and configuration completed successfully!" >> /var/log/grafana-setup.log
+echo "Grafana installation completed at $(date)" >> /var/log/grafana-setup.log
+echo "Access Grafana at: http://$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4):3000" >> /var/log/grafana-setup.log
+echo "Admin password: ${grafana_admin_password}" >> /var/log/grafana-setup.log
+echo "IMPORTANT: Grafana is deployed in private subnet - use SSH tunnel or bastion host to access" >> /var/log/grafana-setup.log
+echo "IMPORTANT: Configure CloudWatch datasource manually with IAM user credentials" >> /var/log/grafana-setup.log
