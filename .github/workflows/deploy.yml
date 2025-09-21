@@ -58,57 +58,8 @@ jobs:
       if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/observabilityBranch'
       run: terraform apply -auto-approve -var="account_name=marc10010"
 
-    - name: Get Grafana IP
-      id: grafana-ip
-      if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/observabilityBranch'
-      run: |
-        GRAFANA_IP=$(terraform output -raw grafana_private_ip)
-        echo "grafana_ip=$GRAFANA_IP" >> $GITHUB_OUTPUT
-        echo "Grafana IP: $GRAFANA_IP"
-
-    - name: Get Grafana Password
-      id: grafana-password
-      if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/observabilityBranch'
-      run: |
-        GRAFANA_PASSWORD=$(terraform output -raw grafana_admin_password)
-        echo "grafana_password=$GRAFANA_PASSWORD" >> $GITHUB_OUTPUT
-
-
-    - name: Wait for Grafana to be ready
-      if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/observabilityBranch'
-      run: |
-        echo "Esperando a que Grafana esté disponible..."
-        timeout 300 bash -c 'until curl -s http://${{ steps.grafana-ip.outputs.grafana_ip }}:3000/api/health; do sleep 10; done'
-        echo "Grafana está listo!"
-
-    - name: Force Unlock Before Grafana Config
-      if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/observabilityBranch'
-      run: |
-        echo "Checking for locks before Grafana configuration..."
-        # Check if there are any locks before applying Grafana config
-        LOCK_OUTPUT=$(terraform plan -var="grafana_ip=${{ steps.grafana-ip.outputs.grafana_ip }}" -var="grafana_password=${{ steps.grafana-password.outputs.grafana_password }}" -var="account_name=marc10010" 2>&1 || true)
-        if echo "$LOCK_OUTPUT" | grep -q "Lock Info:"; then
-          LOCK_ID=$(echo "$LOCK_OUTPUT" | grep -A 10 "Lock Info:" | grep "ID:" | sed 's/.*ID:[[:space:]]*//' | tr -d ' ')
-          if [ -n "$LOCK_ID" ]; then
-            echo "Found stuck lock with ID: $LOCK_ID"
-            terraform force-unlock -force "$LOCK_ID" || echo "Failed to unlock $LOCK_ID"
-          fi
-        else
-          echo "No locks found, proceeding..."
-        fi
-      continue-on-error: true
-
-    - name: Apply Grafana Configuration
-      if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/observabilityBranch'
-      run: |
-        terraform apply -auto-approve -lock-timeout=2m \
-          -var="grafana_ip=${{ steps.grafana-ip.outputs.grafana_ip }}" \
-          -var="grafana_password=${{ steps.grafana-password.outputs.grafana_password }}"
-
-    - name: Output Grafana URL
+    - name: Output Success
       if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/observabilityBranch'
       run: |
         echo "🎉 Despliegue completado!"
-        echo "Grafana URL: http://${{ steps.grafana-ip.outputs.grafana_ip }}:3000"
-        echo "Usuario: admin"
-        echo "Contraseña: ${{ steps.grafana-password.outputs.grafana_password }}"
+        echo "API Gateway URL: $(terraform output -raw api_gateway_url)"

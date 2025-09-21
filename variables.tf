@@ -9,18 +9,7 @@ variable "account_name" {
   type        = string
 }
 
-variable "grafana_ip" {
-  description = "Grafana instance IP address"
-  type        = string
-  default     = ""
-}
-
-variable "grafana_password" {
-  description = "Grafana admin password (leave empty for auto-generated)"
-  type        = string
-  sensitive   = true
-  default     = ""
-}
+# Grafana variables removed
 
 variable "environment" {
   description = "Environment name (dev, staging, prod)"

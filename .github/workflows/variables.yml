@@ -13,12 +13,4 @@
 # TF_STATE_KEY: aws-upc-pfg-infra/terraform.tfstate
 # TF_STATE_REGION: us-east-1
 
-# Grafana Configuration (Optional - will be generated automatically)
-# GRAFANA_ADMIN_PASSWORD: Your custom Grafana admin password
-
-# Terraform Variables for Grafana
-# These will be automatically populated from Terraform outputs
-# GRAFANA_IP: Will be set from terraform output
-# GRAFANA_PASSWORD: Will be set from terraform output
-# LAMBDA_FUNCTION_NAME: Will be set from terraform output
-# DYNAMODB_TABLE_NAME: Will be set from terraform output
+# All Grafana configuration removed

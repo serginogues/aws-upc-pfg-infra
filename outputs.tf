@@ -19,11 +19,4 @@ output "api_gateway_url" {
   value = "https://${aws_api_gateway_rest_api.secrets_api.id}.execute-api.${var.region}.amazonaws.com/${var.environment}"
 }
 
-output "grafana_private_ip" {
-  value = "10.0.2.65"  # IP existing Grafana instance
-}
-
-output "grafana_admin_password" {
-  value = var.grafana_password != "" ? var.grafana_password : random_password.grafana_password.result
-  sensitive = true
-}
+# Grafana outputs removed - instance will be destroyed
