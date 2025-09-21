@@ -42,13 +42,7 @@ resource "aws_sns_topic" "alerts" {
   }
 }
 
-# SNS Topic subscription (email)
-resource "aws_sns_topic_subscription" "email_alerts" {
-  count     = var.alert_email != "" ? 1 : 0
-  topic_arn = aws_sns_topic.alerts.arn
-  protocol  = "email"
-  endpoint  = var.alert_email
-}
+# SNS Topic subscription removed - email alerts not needed
 
 # =============================================================================
 # CLOUDWATCH ALARMS

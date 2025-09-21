@@ -33,3 +33,15 @@ variable "app-name" {
   type        = string
   default     = "aws-upc-pfg"
 }
+
+variable "log_retention_days" {
+  description = "Number of days to retain CloudWatch logs"
+  type        = number
+  default     = 14
+}
+
+variable "duration_threshold_ms" {
+  description = "Lambda duration threshold in milliseconds for alerts"
+  type        = number
+  default     = 30000
+}
