@@ -1,0 +1,148 @@
+{
+  "id": null,
+  "title": "SQS Queues Monitoring",
+    "tags": ["sqs", "aws"],
+    "timezone": "browser",
+    "refresh": "30s",
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "panels": [
+      {
+        "id": 1,
+        "title": "Messages Visible",
+        "type": "graph",
+        "targets": [
+          {
+            "alias": "secrets-journal-queue",
+            "dimensions": {
+              "QueueName": "${name_prefix}-secrets-journal-queue"
+            },
+            "metricName": "ApproximateNumberOfVisibleMessages",
+            "namespace": "AWS/SQS",
+            "period": "",
+            "region": "us-east-1",
+            "statistics": ["Average"]
+          },
+          {
+            "alias": "qr-code-queue",
+            "dimensions": {
+              "QueueName": "${name_prefix}-qr-code-queue"
+            },
+            "metricName": "ApproximateNumberOfVisibleMessages",
+            "namespace": "AWS/SQS",
+            "period": "",
+            "region": "us-east-1",
+            "statistics": ["Average"]
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Messages"
+          }
+        ],
+        "lines": true,
+        "fill": 1,
+        "linewidth": 2,
+        "points": false,
+        "pointradius": 2,
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 0
+        }
+      },
+      {
+        "id": 2,
+        "title": "Messages Sent",
+        "type": "graph",
+        "targets": [
+          {
+            "alias": "secrets-journal-queue",
+            "dimensions": {
+              "QueueName": "${name_prefix}-secrets-journal-queue"
+            },
+            "metricName": "NumberOfMessagesSent",
+            "namespace": "AWS/SQS",
+            "period": "",
+            "region": "us-east-1",
+            "statistics": ["Sum"]
+          },
+          {
+            "alias": "qr-code-queue",
+            "dimensions": {
+              "QueueName": "${name_prefix}-qr-code-queue"
+            },
+            "metricName": "NumberOfMessagesSent",
+            "namespace": "AWS/SQS",
+            "period": "",
+            "region": "us-east-1",
+            "statistics": ["Sum"]
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Messages Sent"
+          }
+        ],
+        "lines": true,
+        "fill": 1,
+        "linewidth": 2,
+        "points": false,
+        "pointradius": 2,
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 0
+        }
+      },
+      {
+        "id": 3,
+        "title": "Messages Received",
+        "type": "graph",
+        "targets": [
+          {
+            "alias": "secrets-journal-queue",
+            "dimensions": {
+              "QueueName": "${name_prefix}-secrets-journal-queue"
+            },
+            "metricName": "NumberOfMessagesReceived",
+            "namespace": "AWS/SQS",
+            "period": "",
+            "region": "us-east-1",
+            "statistics": ["Sum"]
+          },
+          {
+            "alias": "qr-code-queue",
+            "dimensions": {
+              "QueueName": "${name_prefix}-qr-code-queue"
+            },
+            "metricName": "NumberOfMessagesReceived",
+            "namespace": "AWS/SQS",
+            "period": "",
+            "region": "us-east-1",
+            "statistics": ["Sum"]
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Messages Received"
+          }
+        ],
+        "lines": true,
+        "fill": 1,
+        "linewidth": 2,
+        "points": false,
+        "pointradius": 2,
+        "gridPos": {
+          "h": 8,
+          "w": 24,
+          "x": 0,
+          "y": 8
+        }
+      }
+    ]
+}

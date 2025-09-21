@@ -21,6 +21,8 @@ provider "aws" {
   region = var.region
 }
 
+
+
 data "terraform_remote_state" "aws_upc_pfg_tfstate" {
   backend = "s3"
   config = {
