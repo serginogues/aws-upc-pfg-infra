@@ -34,12 +34,12 @@ jobs:
       run: terraform init -backend-config=backend.conf
 
     - name: Terraform Plan
-      run: terraform plan -backend-config=backend.conf
+      run: terraform plan
       continue-on-error: true
 
     - name: Terraform Apply Infrastructure
       if: github.ref == 'refs/heads/main'
-      run: terraform apply -auto-approve -backend-config=backend.conf
+      run: terraform apply -auto-approve
 
     - name: Get Grafana IP
       id: grafana-ip
@@ -80,7 +80,7 @@ jobs:
     - name: Apply Grafana Configuration
       if: github.ref == 'refs/heads/main'
       run: |
-        terraform apply -auto-approve -backend-config=backend.conf \
+        terraform apply -auto-approve \
           -var="grafana_ip=${{ steps.grafana-ip.outputs.grafana_ip }}" \
           -var="grafana_password=${{ steps.grafana-password.outputs.grafana_password }}" \
           -var="lambda_function_name=${{ steps.function-name.outputs.function_name }}" \
