@@ -1,0 +1,199 @@
+{
+  "id": null,
+  "title": "Lambda Functions Monitoring",
+    "tags": ["lambda", "aws"],
+    "timezone": "browser",
+    "refresh": "30s",
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "panels": [
+      {
+        "id": 1,
+        "title": "Lambda Invocations",
+        "type": "graph",
+        "targets": [
+          {
+            "alias": "secrets_function",
+            "dimensions": {
+              "FunctionName": "${name_prefix}-secrets_function"
+            },
+            "metricName": "Invocations",
+            "namespace": "AWS/Lambda",
+            "period": "",
+            "region": "us-east-1",
+            "statistics": ["Sum"]
+          },
+          {
+            "alias": "acknowledge_function",
+            "dimensions": {
+              "FunctionName": "${name_prefix}-acknowledge_function"
+            },
+            "metricName": "Invocations",
+            "namespace": "AWS/Lambda",
+            "period": "",
+            "region": "us-east-1",
+            "statistics": ["Sum"]
+          },
+          {
+            "alias": "qrcode_generator_function",
+            "dimensions": {
+              "FunctionName": "${name_prefix}-qr_code_generator_function"
+            },
+            "metricName": "Invocations",
+            "namespace": "AWS/Lambda",
+            "period": "",
+            "region": "us-east-1",
+            "statistics": ["Sum"]
+          },
+          {
+            "alias": "auth_lambda",
+            "dimensions": {
+              "FunctionName": "${name_prefix}-auth_lambda"
+            },
+            "metricName": "Invocations",
+            "namespace": "AWS/Lambda",
+            "period": "",
+            "region": "us-east-1",
+            "statistics": ["Sum"]
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Invocations"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 0
+        }
+      },
+      {
+        "id": 2,
+        "title": "Lambda Duration (ms)",
+        "type": "graph",
+        "targets": [
+          {
+            "alias": "secrets_function",
+            "dimensions": {
+              "FunctionName": "${name_prefix}-secrets_function"
+            },
+            "metricName": "Duration",
+            "namespace": "AWS/Lambda",
+            "period": "",
+            "region": "us-east-1",
+            "statistics": ["Average"]
+          },
+          {
+            "alias": "acknowledge_function",
+            "dimensions": {
+              "FunctionName": "${name_prefix}-acknowledge_function"
+            },
+            "metricName": "Duration",
+            "namespace": "AWS/Lambda",
+            "period": "",
+            "region": "us-east-1",
+            "statistics": ["Average"]
+          },
+          {
+            "alias": "qrcode_generator_function",
+            "dimensions": {
+              "FunctionName": "${name_prefix}-qr_code_generator_function"
+            },
+            "metricName": "Duration",
+            "namespace": "AWS/Lambda",
+            "period": "",
+            "region": "us-east-1",
+            "statistics": ["Average"]
+          },
+          {
+            "alias": "auth_lambda",
+            "dimensions": {
+              "FunctionName": "${name_prefix}-auth_lambda"
+            },
+            "metricName": "Duration",
+            "namespace": "AWS/Lambda",
+            "period": "",
+            "region": "us-east-1",
+            "statistics": ["Average"]
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Duration (ms)"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 0
+        }
+      },
+      {
+        "id": 3,
+        "title": "Lambda Errors",
+        "type": "graph",
+        "targets": [
+          {
+            "alias": "secrets_function",
+            "dimensions": {
+              "FunctionName": "${name_prefix}-secrets_function"
+            },
+            "metricName": "Errors",
+            "namespace": "AWS/Lambda",
+            "period": "",
+            "region": "us-east-1",
+            "statistics": ["Sum"]
+          },
+          {
+            "alias": "acknowledge_function",
+            "dimensions": {
+              "FunctionName": "${name_prefix}-acknowledge_function"
+            },
+            "metricName": "Errors",
+            "namespace": "AWS/Lambda",
+            "period": "",
+            "region": "us-east-1",
+            "statistics": ["Sum"]
+          },
+          {
+            "alias": "qrcode_generator_function",
+            "dimensions": {
+              "FunctionName": "${name_prefix}-qr_code_generator_function"
+            },
+            "metricName": "Errors",
+            "namespace": "AWS/Lambda",
+            "period": "",
+            "region": "us-east-1",
+            "statistics": ["Sum"]
+          },
+          {
+            "alias": "auth_lambda",
+            "dimensions": {
+              "FunctionName": "${name_prefix}-auth_lambda"
+            },
+            "metricName": "Errors",
+            "namespace": "AWS/Lambda",
+            "period": "",
+            "region": "us-east-1",
+            "statistics": ["Sum"]
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Errors"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 24,
+          "x": 0,
+          "y": 8
+        }
+      }
+    ]
+}

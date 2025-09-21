@@ -1,0 +1,111 @@
+{
+  "id": null,
+  "title": "DynamoDB Monitoring",
+    "tags": ["dynamodb", "aws"],
+    "timezone": "browser",
+    "refresh": "30s",
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "panels": [
+      {
+        "id": 1,
+        "title": "Read Capacity Units",
+        "type": "graph",
+        "targets": [
+          {
+            "alias": "Consumed Read Capacity",
+            "dimensions": {
+              "TableName": "${name_prefix}-secrets"
+            },
+            "metricName": "ConsumedReadCapacityUnits",
+            "namespace": "AWS/DynamoDB",
+            "period": "",
+            "region": "us-east-1",
+            "statistics": ["Sum"]
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Read Capacity Units"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 0
+        }
+      },
+      {
+        "id": 2,
+        "title": "Write Capacity Units",
+        "type": "graph",
+        "targets": [
+          {
+            "alias": "Consumed Write Capacity",
+            "dimensions": {
+              "TableName": "${name_prefix}-secrets"
+            },
+            "metricName": "ConsumedWriteCapacityUnits",
+            "namespace": "AWS/DynamoDB",
+            "period": "",
+            "region": "us-east-1",
+            "statistics": ["Sum"]
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Write Capacity Units"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 0
+        }
+      },
+      {
+        "id": 3,
+        "title": "Throttled Requests",
+        "type": "graph",
+        "targets": [
+          {
+            "alias": "Read Throttles",
+            "dimensions": {
+              "TableName": "${name_prefix}-secrets"
+            },
+            "metricName": "ReadThrottledEvents",
+            "namespace": "AWS/DynamoDB",
+            "period": "",
+            "region": "us-east-1",
+            "statistics": ["Sum"]
+          },
+          {
+            "alias": "Write Throttles",
+            "dimensions": {
+              "TableName": "${name_prefix}-secrets"
+            },
+            "metricName": "WriteThrottledEvents",
+            "namespace": "AWS/DynamoDB",
+            "period": "",
+            "region": "us-east-1",
+            "statistics": ["Sum"]
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Throttled Events"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 24,
+          "x": 0,
+          "y": 8
+        }
+      }
+    ]
+}

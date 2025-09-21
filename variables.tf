@@ -34,3 +34,10 @@ variable "duration_threshold_ms" {
   type        = number
   default     = 30000
 }
+
+variable "grafana_admin_password" {
+  description = "Admin password for Grafana (change after first login)"
+  type        = string
+  default     = "admin"
+  sensitive   = true
+}
