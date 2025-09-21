@@ -257,7 +257,7 @@ resource "aws_instance" "grafana" {
     connection {
       type        = "ssh"
       user        = "ubuntu"
-      private_key = file("~/.ssh/grafana_key")
+      private_key = file("./keys/grafana_key")
       host        = self.public_ip
     }
   }
