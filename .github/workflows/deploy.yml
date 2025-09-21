@@ -39,7 +39,7 @@ jobs:
 
     - name: Terraform Apply Infrastructure
       if: github.ref == 'refs/heads/main'
-      run: terraform apply -auto-approve -var="account_name=marc10010" -lock-timeout=5m
+      run: terraform apply -auto-approve -var="account_name=marc10010"
 
     - name: Get Grafana IP
       id: grafana-ip
@@ -56,19 +56,6 @@ jobs:
         GRAFANA_PASSWORD=$(terraform output -raw grafana_admin_password)
         echo "grafana_password=$GRAFANA_PASSWORD" >> $GITHUB_OUTPUT
 
-    - name: Get Function Name
-      id: function-name
-      if: github.ref == 'refs/heads/main'
-      run: |
-        FUNCTION_NAME=$(terraform output -json lambda_function_names | jq -r '.secrets_function')
-        echo "function_name=$FUNCTION_NAME" >> $GITHUB_OUTPUT
-
-    - name: Get Table Name
-      id: table-name
-      if: github.ref == 'refs/heads/main'
-      run: |
-        TABLE_NAME=$(terraform output -raw dynamodb_table_name)
-        echo "table_name=$TABLE_NAME" >> $GITHUB_OUTPUT
 
     - name: Wait for Grafana to be ready
       if: github.ref == 'refs/heads/main'
@@ -82,9 +69,7 @@ jobs:
       run: |
         terraform apply -auto-approve -lock-timeout=5m \
           -var="grafana_ip=${{ steps.grafana-ip.outputs.grafana_ip }}" \
-          -var="grafana_password=${{ steps.grafana-password.outputs.grafana_password }}" \
-          -var="lambda_function_name=${{ steps.function-name.outputs.function_name }}" \
-          -var="dynamodb_table_name=${{ steps.table-name.outputs.table_name }}"
+          -var="grafana_password=${{ steps.grafana-password.outputs.grafana_password }}"
 
     - name: Output Grafana URL
       if: github.ref == 'refs/heads/main'

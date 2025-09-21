@@ -22,8 +22,8 @@ provider "aws" {
 }
 
 provider "grafana" {
-  url  = "http://${var.grafana_ip}:3000"
-  auth = "admin:${var.grafana_password}"
+  url  = "http://${aws_instance.grafana.private_ip}:3000"
+  auth = "admin:${var.grafana_password != "" ? var.grafana_password : random_password.grafana_password.result}"
 }
 
 

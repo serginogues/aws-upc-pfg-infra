@@ -30,7 +30,7 @@ resource "grafana_data_source" "cloudwatch" {
 resource "grafana_dashboard" "lambda_monitoring" {
   folder = grafana_folder.lambda_monitoring.id
   config_json = templatefile("${path.module}/dashboards/lambda-monitoring.json", {
-    function_name = var.lambda_function_name
+    function_name = "aws-upc-pfg-secrets-function-${var.account_name}"
     region        = var.region
   })
 }
@@ -39,7 +39,7 @@ resource "grafana_dashboard" "lambda_monitoring" {
 resource "grafana_dashboard" "dynamodb_monitoring" {
   folder = grafana_folder.dynamodb_monitoring.id
   config_json = templatefile("${path.module}/dashboards/dynamodb-monitoring.json", {
-    table_name = var.dynamodb_table_name
+    table_name = "aws-upc-pfg-secrets-${var.account_name}"
     region     = var.region
   })
 }

@@ -12,20 +12,12 @@ variable "account_name" {
 variable "grafana_ip" {
   description = "Grafana instance IP address"
   type        = string
+  default     = ""
 }
 
 variable "grafana_password" {
-  description = "Grafana admin password"
+  description = "Grafana admin password (leave empty for auto-generated)"
   type        = string
   sensitive   = true
-}
-
-variable "lambda_function_name" {
-  description = "Lambda function name for monitoring"
-  type        = string
-}
-
-variable "dynamodb_table_name" {
-  description = "DynamoDB table name for monitoring"
-  type        = string
+  default     = ""
 }
