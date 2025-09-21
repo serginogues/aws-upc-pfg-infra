@@ -20,7 +20,7 @@ output "api_gateway_url" {
 }
 
 output "grafana_private_ip" {
-  value = aws_instance.grafana.private_ip
+  value = "10.0.2.65"  # IP existing Grafana instance
 }
 
 output "grafana_admin_password" {

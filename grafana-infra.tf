@@ -1,21 +1,21 @@
-# Grafana EC2 Instance
-resource "aws_instance" "grafana" {
-  ami                    = "ami-0c02fb55956c7d316" # Amazon Linux 2
-  instance_type          = "t3.medium"
-  key_name              = "aws-upc-pfg-key-${var.account_name}"
-  vpc_security_group_ids = [aws_security_group.grafana_sg.id]
-  subnet_id             = data.terraform_remote_state.aws_upc_pfg_tfstate.outputs.private_subnet_id
-  iam_instance_profile  = aws_iam_instance_profile.grafana_profile.name
-
-  user_data = base64encode(templatefile("${path.module}/grafana-user-data.sh", {
-    grafana_admin_password = var.grafana_password != "" ? var.grafana_password : random_password.grafana_password.result
-    region                = var.region
-  }))
-
-  tags = {
-    Name = "grafana-${var.account_name}"
-  }
-}
+# Grafana EC2 Instance - COMMENTED OUT (already exists)
+# resource "aws_instance" "grafana" {
+#   ami                    = "ami-0c02fb55956c7d316" # Amazon Linux 2
+#   instance_type          = "t3.medium"
+#   key_name              = "aws-upc-pfg-key-${var.account_name}"
+#   vpc_security_group_ids = [aws_security_group.grafana_sg.id]
+#   subnet_id             = data.terraform_remote_state.aws_upc_pfg_tfstate.outputs.private_subnet_id
+#   iam_instance_profile  = aws_iam_instance_profile.grafana_profile.name
+#
+#   user_data = base64encode(templatefile("${path.module}/grafana-user-data.sh", {
+#     grafana_admin_password = var.grafana_password != "" ? var.grafana_password : random_password.grafana_password.result
+#     region                = var.region
+#   }))
+#
+#   tags = {
+#     Name = "grafana-${var.account_name}"
+#   }
+# }
 
 # Random password for Grafana if not provided
 resource "random_password" "grafana_password" {
