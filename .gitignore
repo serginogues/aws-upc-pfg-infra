@@ -10,6 +10,8 @@
 *.pem
 *.key
 !bastion-key.pub
+keys/
+!keys/.gitkeep
 
 # Logs
 *.log

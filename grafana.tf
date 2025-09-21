@@ -218,7 +218,7 @@ locals {
 # Create a key pair for SSH access
 resource "aws_key_pair" "grafana_key" {
   key_name   = "${local.name_prefix}-grafana-key"
-  public_key = file("~/.ssh/grafana_key.pub")
+  public_key = file("./keys/grafana_key.pub")
 }
 
 # Grafana EC2 Instance
@@ -257,7 +257,7 @@ resource "aws_instance" "grafana" {
     connection {
       type        = "ssh"
       user        = "ubuntu"
-      private_key = file("~/.ssh/grafana_key")
+      private_key = file("./keys/grafana_key")
       host        = self.public_ip
     }
   }

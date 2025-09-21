@@ -23,6 +23,14 @@ jobs:
         with:
           terraform_version: 1.12.2
 
+      - name: Create SSH key for Grafana
+        run: |
+          mkdir -p keys
+          echo "${{ secrets.GRAFANA_SSH_PUBLIC_KEY }}" > keys/grafana_key.pub
+          echo "${{ secrets.GRAFANA_SSH_PRIVATE_KEY }}" > keys/grafana_key
+          chmod 644 keys/grafana_key.pub
+          chmod 600 keys/grafana_key
+
       - name: Initialize Terraform
         run: terraform init
 
