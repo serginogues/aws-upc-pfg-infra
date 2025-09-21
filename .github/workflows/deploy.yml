@@ -34,12 +34,12 @@ jobs:
       run: terraform init -backend-config=backend.conf
 
     - name: Terraform Plan
-      run: terraform plan
+      run: terraform plan -var="account_name=marc10010"
       continue-on-error: true
 
     - name: Terraform Apply Infrastructure
       if: github.ref == 'refs/heads/main'
-      run: terraform apply -auto-approve
+      run: terraform apply -auto-approve -var="account_name=marc10010"
 
     - name: Get Grafana IP
       id: grafana-ip
