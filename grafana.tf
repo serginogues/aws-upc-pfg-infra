@@ -145,7 +145,7 @@ data "aws_subnets" "default" {
 
 # S3 bucket for storing dashboard files
 resource "aws_s3_bucket" "grafana_dashboards" {
-  bucket = "${local.name_prefix}-grafana-dashboards"
+  bucket = "${local.name_prefix}-grafana-dashboards-${var.account_name}"
 }
 
 resource "aws_s3_bucket_public_access_block" "grafana_dashboards" {
