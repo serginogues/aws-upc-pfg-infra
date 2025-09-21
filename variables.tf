@@ -21,3 +21,15 @@ variable "grafana_password" {
   sensitive   = true
   default     = ""
 }
+
+variable "environment" {
+  description = "Environment name (dev, staging, prod)"
+  type        = string
+  default     = "dev"
+}
+
+variable "app-name" {
+  description = "Application name"
+  type        = string
+  default     = "aws-upc-pfg"
+}
