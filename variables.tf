@@ -41,3 +41,12 @@ variable "grafana_admin_password" {
   default     = "admin"
   sensitive   = true
 }
+
+variable "sender_email" {
+  type        = string
+  description = "Email to use as sender"
+}
+
+locals {
+  name_prefix = "${var.app-name}-${var.environment}"
+}
