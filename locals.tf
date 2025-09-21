@@ -1,6 +1,6 @@
 # Local values
 locals {
-  name_prefix = "${var.app-name}-${var.environment}"
+  name_prefix = "${var.app-name}-infra-${var.environment}"
   
   common_tags = {
     Environment = var.environment
