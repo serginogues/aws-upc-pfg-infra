@@ -1,0 +1,161 @@
+{
+  "id": null,
+  "title": "DynamoDB Monitoring",
+  "tags": ["dynamodb", "aws", "database", "monitoring"],
+  "timezone": "browser",
+  "refresh": "30s",
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "DynamoDB Item Count",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "targets": [
+        {
+          "region": "${region}",
+          "queryMode": "Metrics",
+          "namespace": "AWS/DynamoDB",
+          "metricName": "ItemCount",
+          "dimensions": {
+            "TableName": "${table_name}"
+          },
+          "statistic": "Average",
+          "refId": "A",
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "cloudwatch"
+          }
+        }
+      ],
+      "yAxes": [
+        {
+          "label": "Item Count",
+          "min": 0
+        }
+      ],
+      "xAxis": {
+        "show": true
+      }
+    },
+    {
+      "id": 2,
+      "title": "Consumed Read Capacity Units",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
+      "targets": [
+        {
+          "region": "${region}",
+          "queryMode": "Metrics",
+          "namespace": "AWS/DynamoDB",
+          "metricName": "ConsumedReadCapacityUnits",
+          "dimensions": {
+            "TableName": "${table_name}"
+          },
+          "statistic": "Sum",
+          "refId": "A",
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "cloudwatch"
+          }
+        }
+      ],
+      "yAxes": [
+        {
+          "label": "Read Capacity Units",
+          "min": 0
+        }
+      ],
+      "xAxis": {
+        "show": true
+      }
+    },
+    {
+      "id": 3,
+      "title": "Consumed Write Capacity Units",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      },
+      "targets": [
+        {
+          "region": "${region}",
+          "queryMode": "Metrics",
+          "namespace": "AWS/DynamoDB",
+          "metricName": "ConsumedWriteCapacityUnits",
+          "dimensions": {
+            "TableName": "${table_name}"
+          },
+          "statistic": "Sum",
+          "refId": "A",
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "cloudwatch"
+          }
+        }
+      ],
+      "yAxes": [
+        {
+          "label": "Write Capacity Units",
+          "min": 0
+        }
+      ],
+      "xAxis": {
+        "show": true
+      }
+    },
+    {
+      "id": 4,
+      "title": "Throttled Requests",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 8
+      },
+      "targets": [
+        {
+          "region": "${region}",
+          "queryMode": "Metrics",
+          "namespace": "AWS/DynamoDB",
+          "metricName": "ThrottledRequests",
+          "dimensions": {
+            "TableName": "${table_name}"
+          },
+          "statistic": "Sum",
+          "refId": "A",
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "cloudwatch"
+          }
+        }
+      ],
+      "yAxes": [
+        {
+          "label": "Throttled Requests",
+          "min": 0
+        }
+      ],
+      "xAxis": {
+        "show": true
+      }
+    }
+  ]
+}

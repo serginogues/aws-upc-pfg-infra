@@ -1,61 +1,31 @@
-variable "environment" {
-  description = "Deployment environment (dev, prod)"
-  type        = string
-  default     = "dev"
-}
-
-variable "app-name" {
-  description = "Name of the application"
-  type        = string
-  default     = "aws-upc-pfg-infra"
-}
-
 variable "region" {
-  description = "AWS region for the VPC"
+  description = "AWS region"
   type        = string
   default     = "us-east-1"
 }
 
 variable "account_name" {
+  description = "Account name for resource naming"
   type        = string
-  description = "Name of the AWS account"
 }
 
-# Monitoring variables
-variable "log_retention_days" {
-  description = "Number of days to retain CloudWatch logs"
-  type        = number
-  default     = 14
-}
-
-variable "alert_email" {
-  description = "Email address for SNS notifications"
+variable "grafana_ip" {
+  description = "Grafana instance IP address"
   type        = string
-  default     = ""
 }
 
-variable "duration_threshold_ms" {
-  description = "Duration threshold in milliseconds for Lambda alarms"
-  type        = number
-  default     = 1000
-}
-
-# Grafana variables
-variable "grafana_instance_type" {
-  description = "EC2 instance type for Grafana"
+variable "grafana_password" {
+  description = "Grafana admin password"
   type        = string
-  default     = "t3.micro"
-}
-
-variable "grafana_admin_password" {
-  description = "Admin password for Grafana"
-  type        = string
-  default     = "admin123"
   sensitive   = true
 }
 
-# Note: allowed_cidr_blocks not used in private subnet deployment
+variable "lambda_function_name" {
+  description = "Lambda function name for monitoring"
+  type        = string
+}
 
-locals {
-  name_prefix = "${var.app-name}-${var.environment}"
+variable "dynamodb_table_name" {
+  description = "DynamoDB table name for monitoring"
+  type        = string
 }

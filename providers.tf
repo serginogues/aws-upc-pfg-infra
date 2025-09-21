@@ -2,11 +2,7 @@ terraform {
   required_version = ">= 1.1.5"
 
   backend "s3" {
-    bucket         = "aws-upc-pfg-infra-tfstate-bucket-sergi" # Project B's OWN state bucket
-    key            = "aws-upc-pfg-infra/terraform.tfstate"
-    region         = "us-east-1"  # or your preferred region
-    encrypt        = true
-    use_lockfile   = true  # Optional but recommended for state locking
+    # Backend configuration will be provided via backend config file
   }
 
   required_providers {
@@ -26,9 +22,10 @@ provider "aws" {
 }
 
 provider "grafana" {
-  url     = "http://${aws_instance.grafana.private_ip}:3000"
-  auth    = "admin:${var.grafana_admin_password}"
+  url  = "http://${var.grafana_ip}:3000"
+  auth = "admin:${var.grafana_password}"
 }
+
 
 data "terraform_remote_state" "aws_upc_pfg_tfstate" {
   backend = "s3"

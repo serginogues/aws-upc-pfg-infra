@@ -1,0 +1,124 @@
+{
+  "id": null,
+  "title": "AWS Lambda Monitoring",
+  "tags": ["lambda", "aws", "monitoring"],
+  "timezone": "browser",
+  "refresh": "30s",
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Lambda Invocations",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "targets": [
+        {
+          "region": "${region}",
+          "queryMode": "Metrics",
+          "namespace": "AWS/Lambda",
+          "metricName": "Invocations",
+          "dimensions": {
+            "FunctionName": "${function_name}"
+          },
+          "statistic": "Sum",
+          "refId": "A",
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "cloudwatch"
+          }
+        }
+      ],
+      "yAxes": [
+        {
+          "label": "Invocations",
+          "min": 0
+        }
+      ],
+      "xAxis": {
+        "show": true
+      }
+    },
+    {
+      "id": 2,
+      "title": "Lambda Errors",
+      "type": "graph",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
+      "targets": [
+        {
+          "region": "${region}",
+          "queryMode": "Metrics",
+          "namespace": "AWS/Lambda",
+          "metricName": "Errors",
+          "dimensions": {
+            "FunctionName": "${function_name}"
+          },
+          "statistic": "Sum",
+          "refId": "A",
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "cloudwatch"
+          }
+        }
+      ],
+      "yAxes": [
+        {
+          "label": "Errors",
+          "min": 0
+        }
+      ],
+      "xAxis": {
+        "show": true
+      }
+    },
+    {
+      "id": 3,
+      "title": "Lambda Duration",
+      "type": "graph",
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 8
+      },
+      "targets": [
+        {
+          "region": "${region}",
+          "queryMode": "Metrics",
+          "namespace": "AWS/Lambda",
+          "metricName": "Duration",
+          "dimensions": {
+            "FunctionName": "${function_name}"
+          },
+          "statistic": "Average",
+          "refId": "A",
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "cloudwatch"
+          }
+        }
+      ],
+      "yAxes": [
+        {
+          "label": "Duration (ms)",
+          "min": 0
+        }
+      ],
+      "xAxis": {
+        "show": true
+      }
+    }
+  ]
+}

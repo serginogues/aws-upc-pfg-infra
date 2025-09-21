@@ -1,0 +1,95 @@
+name: Deploy Infrastructure
+
+on:
+  push:
+    branches: [ main, develop, observabilityBranch ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  AWS_REGION: us-east-1
+  TF_VERSION: '1.12.2'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: ${{ env.TF_VERSION }}
+
+    - name: Terraform Init
+      run: terraform init -backend-config=backend.conf
+
+    - name: Terraform Plan
+      run: terraform plan -backend-config=backend.conf
+      continue-on-error: true
+
+    - name: Terraform Apply Infrastructure
+      if: github.ref == 'refs/heads/main'
+      run: terraform apply -auto-approve -backend-config=backend.conf
+
+    - name: Get Grafana IP
+      id: grafana-ip
+      if: github.ref == 'refs/heads/main'
+      run: |
+        GRAFANA_IP=$(terraform output -raw grafana_private_ip)
+        echo "grafana_ip=$GRAFANA_IP" >> $GITHUB_OUTPUT
+        echo "Grafana IP: $GRAFANA_IP"
+
+    - name: Get Grafana Password
+      id: grafana-password
+      if: github.ref == 'refs/heads/main'
+      run: |
+        GRAFANA_PASSWORD=$(terraform output -raw grafana_admin_password)
+        echo "grafana_password=$GRAFANA_PASSWORD" >> $GITHUB_OUTPUT
+
+    - name: Get Function Name
+      id: function-name
+      if: github.ref == 'refs/heads/main'
+      run: |
+        FUNCTION_NAME=$(terraform output -json lambda_function_names | jq -r '.secrets_function')
+        echo "function_name=$FUNCTION_NAME" >> $GITHUB_OUTPUT
+
+    - name: Get Table Name
+      id: table-name
+      if: github.ref == 'refs/heads/main'
+      run: |
+        TABLE_NAME=$(terraform output -raw dynamodb_table_name)
+        echo "table_name=$TABLE_NAME" >> $GITHUB_OUTPUT
+
+    - name: Wait for Grafana to be ready
+      if: github.ref == 'refs/heads/main'
+      run: |
+        echo "Esperando a que Grafana esté disponible..."
+        timeout 300 bash -c 'until curl -s http://${{ steps.grafana-ip.outputs.grafana_ip }}:3000/api/health; do sleep 10; done'
+        echo "Grafana está listo!"
+
+    - name: Apply Grafana Configuration
+      if: github.ref == 'refs/heads/main'
+      run: |
+        terraform apply -auto-approve -backend-config=backend.conf \
+          -var="grafana_ip=${{ steps.grafana-ip.outputs.grafana_ip }}" \
+          -var="grafana_password=${{ steps.grafana-password.outputs.grafana_password }}" \
+          -var="lambda_function_name=${{ steps.function-name.outputs.function_name }}" \
+          -var="dynamodb_table_name=${{ steps.table-name.outputs.table_name }}"
+
+    - name: Output Grafana URL
+      if: github.ref == 'refs/heads/main'
+      run: |
+        echo "🎉 Despliegue completado!"
+        echo "Grafana URL: http://${{ steps.grafana-ip.outputs.grafana_ip }}:3000"
+        echo "Usuario: admin"
+        echo "Contraseña: ${{ steps.grafana-password.outputs.grafana_password }}"

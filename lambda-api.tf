@@ -111,9 +111,6 @@ resource "aws_lambda_function" "send_qrcode_upload_function" {
   timeout       = 30
   architectures = ["x86_64"]
 
-#   s3_bucket     = data.terraform_remote_state.aws_upc_pfg_tfstate.outputs.lambda_s3_bucket
-#   s3_key        = data.terraform_remote_state.aws_upc_pfg_tfstate.outputs.send_qrcode_upload_function_s3_key
-#   s3_object_version   = data.terraform_remote_state.aws_upc_pfg_tfstate.outputs.send_qrcode_upload_function_s3_object_version
 
   environment {
     variables = {
