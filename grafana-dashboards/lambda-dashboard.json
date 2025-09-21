@@ -64,6 +64,11 @@
             "label": "Invocations"
           }
         ],
+        "lines": true,
+        "fill": 1,
+        "linewidth": 2,
+        "points": false,
+        "pointradius": 2,
         "gridPos": {
           "h": 8,
           "w": 12,
@@ -126,6 +131,11 @@
             "label": "Duration (ms)"
           }
         ],
+        "lines": true,
+        "fill": 1,
+        "linewidth": 2,
+        "points": false,
+        "pointradius": 2,
         "gridPos": {
           "h": 8,
           "w": 12,
@@ -188,6 +198,11 @@
             "label": "Errors"
           }
         ],
+        "lines": true,
+        "fill": 1,
+        "linewidth": 2,
+        "points": false,
+        "pointradius": 2,
         "gridPos": {
           "h": 8,
           "w": 24,
