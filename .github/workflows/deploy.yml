@@ -39,7 +39,7 @@ jobs:
 
     - name: Terraform Apply Infrastructure
       if: github.ref == 'refs/heads/main'
-      run: terraform apply -auto-approve -var="account_name=marc10010"
+      run: terraform apply -auto-approve -var="account_name=marc10010" -lock-timeout=5m
 
     - name: Get Grafana IP
       id: grafana-ip
@@ -80,7 +80,7 @@ jobs:
     - name: Apply Grafana Configuration
       if: github.ref == 'refs/heads/main'
       run: |
-        terraform apply -auto-approve \
+        terraform apply -auto-approve -lock-timeout=5m \
           -var="grafana_ip=${{ steps.grafana-ip.outputs.grafana_ip }}" \
           -var="grafana_password=${{ steps.grafana-password.outputs.grafana_password }}" \
           -var="lambda_function_name=${{ steps.function-name.outputs.function_name }}" \
