@@ -2,7 +2,7 @@ terraform {
   required_version = ">= 1.1.5"
 
   backend "s3" {
-    bucket         = "aws-upc-pfg-infra-tfstate-bucket-sergi" # Project OWN state bucket
+    bucket         = "aws-upc-pfg-infra-tfstate-bucket-sergi" # Project B's OWN state bucket
     key            = "aws-upc-pfg-infra/terraform.tfstate"
     region         = "us-east-1"  # or your preferred region
     encrypt        = true
